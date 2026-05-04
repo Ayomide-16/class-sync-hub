@@ -1,1 +1,7 @@
 project_id = "mlpltajakxlmebplrhal"
+
+[functions.hardware-sync]
+verify_jwt = false
+
+[functions.admin-seed]
+verify_jwt = false
