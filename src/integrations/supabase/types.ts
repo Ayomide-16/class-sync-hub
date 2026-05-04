@@ -14,16 +14,283 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      attendance_logs: {
+        Row: {
+          course_id: string | null
+          created_at: string
+          device_id: string | null
+          id: string
+          logged_at: string | null
+          matric_number: string
+          method: string
+          raw_time: string | null
+          schedule_id: string | null
+          student_id: string | null
+          student_name: string
+          time_synced: boolean
+          unmatched: boolean
+        }
+        Insert: {
+          course_id?: string | null
+          created_at?: string
+          device_id?: string | null
+          id?: string
+          logged_at?: string | null
+          matric_number: string
+          method: string
+          raw_time?: string | null
+          schedule_id?: string | null
+          student_id?: string | null
+          student_name: string
+          time_synced?: boolean
+          unmatched?: boolean
+        }
+        Update: {
+          course_id?: string | null
+          created_at?: string
+          device_id?: string | null
+          id?: string
+          logged_at?: string | null
+          matric_number?: string
+          method?: string
+          raw_time?: string | null
+          schedule_id?: string | null
+          student_id?: string | null
+          student_name?: string
+          time_synced?: boolean
+          unmatched?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_logs_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_logs_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "schedules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_enrollments: {
+        Row: {
+          course_id: string
+          enrolled_at: string
+          id: string
+          student_id: string
+        }
+        Insert: {
+          course_id: string
+          enrolled_at?: string
+          id?: string
+          student_id: string
+        }
+        Update: {
+          course_id?: string
+          enrolled_at?: string
+          id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_enrollments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      courses: {
+        Row: {
+          course_code: string
+          course_name: string
+          course_rep_id: string | null
+          created_at: string
+          id: string
+          lecturer_id: string | null
+        }
+        Insert: {
+          course_code: string
+          course_name: string
+          course_rep_id?: string | null
+          created_at?: string
+          id?: string
+          lecturer_id?: string | null
+        }
+        Update: {
+          course_code?: string
+          course_name?: string
+          course_rep_id?: string | null
+          created_at?: string
+          id?: string
+          lecturer_id?: string | null
+        }
+        Relationships: []
+      }
+      enrollment_records: {
+        Row: {
+          created_at: string
+          enrolled_at: string | null
+          fingerprint_id: number | null
+          id: string
+          matric_number: string
+          raw_time: string | null
+          rfid_card_id: string | null
+          student_name: string
+          time_synced: boolean
+        }
+        Insert: {
+          created_at?: string
+          enrolled_at?: string | null
+          fingerprint_id?: number | null
+          id?: string
+          matric_number: string
+          raw_time?: string | null
+          rfid_card_id?: string | null
+          student_name: string
+          time_synced?: boolean
+        }
+        Update: {
+          created_at?: string
+          enrolled_at?: string | null
+          fingerprint_id?: number | null
+          id?: string
+          matric_number?: string
+          raw_time?: string | null
+          rfid_card_id?: string | null
+          student_name?: string
+          time_synced?: boolean
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          fingerprint_id: number | null
+          full_name: string
+          id: string
+          matric_number: string | null
+          rfid_card_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          fingerprint_id?: number | null
+          full_name?: string
+          id: string
+          matric_number?: string | null
+          rfid_card_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          fingerprint_id?: number | null
+          full_name?: string
+          id?: string
+          matric_number?: string | null
+          rfid_card_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      schedules: {
+        Row: {
+          course_id: string
+          created_at: string
+          day_of_week: number
+          device_id: string | null
+          end_time: string
+          id: string
+          start_time: string
+          venue: string | null
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          day_of_week: number
+          device_id?: string | null
+          end_time: string
+          id?: string
+          start_time: string
+          venue?: string | null
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          day_of_week?: number
+          device_id?: string | null
+          end_time?: string
+          id?: string
+          start_time?: string
+          venue?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedules_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      current_user_role: {
+        Args: never
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      get_active_schedule_for_lecturer: {
+        Args: { _lecturer_id: string }
+        Returns: {
+          course_code: string
+          course_id: string
+          course_name: string
+          day_of_week: number
+          device_id: string
+          end_time: string
+          schedule_id: string
+          start_time: string
+          venue: string
+        }[]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "student" | "lecturer" | "course_rep"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +417,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["student", "lecturer", "course_rep"],
+    },
   },
 } as const
