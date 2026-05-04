@@ -10,14 +10,24 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StudentRouteImport } from './routes/student'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LecturerRouteImport } from './routes/lecturer'
+import { Route as CourseRepRouteImport } from './routes/course-rep'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LecturerCoursesRouteImport } from './routes/lecturer.courses'
+import { Route as CourseRepTimetableRouteImport } from './routes/course-rep.timetable'
+import { Route as CourseRepStudentsRouteImport } from './routes/course-rep.students'
+import { Route as CourseRepCoursesRouteImport } from './routes/course-rep.courses'
 
 const StudentRoute = StudentRouteImport.update({
   id: '/student',
   path: '/student',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -30,6 +40,11 @@ const LecturerRoute = LecturerRouteImport.update({
   path: '/lecturer',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CourseRepRoute = CourseRepRouteImport.update({
+  id: '/course-rep',
+  path: '/course-rep',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -40,47 +55,104 @@ const LecturerCoursesRoute = LecturerCoursesRouteImport.update({
   path: '/courses',
   getParentRoute: () => LecturerRoute,
 } as any)
+const CourseRepTimetableRoute = CourseRepTimetableRouteImport.update({
+  id: '/timetable',
+  path: '/timetable',
+  getParentRoute: () => CourseRepRoute,
+} as any)
+const CourseRepStudentsRoute = CourseRepStudentsRouteImport.update({
+  id: '/students',
+  path: '/students',
+  getParentRoute: () => CourseRepRoute,
+} as any)
+const CourseRepCoursesRoute = CourseRepCoursesRouteImport.update({
+  id: '/courses',
+  path: '/courses',
+  getParentRoute: () => CourseRepRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/course-rep': typeof CourseRepRouteWithChildren
   '/lecturer': typeof LecturerRouteWithChildren
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/student': typeof StudentRoute
+  '/course-rep/courses': typeof CourseRepCoursesRoute
+  '/course-rep/students': typeof CourseRepStudentsRoute
+  '/course-rep/timetable': typeof CourseRepTimetableRoute
   '/lecturer/courses': typeof LecturerCoursesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/course-rep': typeof CourseRepRouteWithChildren
   '/lecturer': typeof LecturerRouteWithChildren
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/student': typeof StudentRoute
+  '/course-rep/courses': typeof CourseRepCoursesRoute
+  '/course-rep/students': typeof CourseRepStudentsRoute
+  '/course-rep/timetable': typeof CourseRepTimetableRoute
   '/lecturer/courses': typeof LecturerCoursesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/course-rep': typeof CourseRepRouteWithChildren
   '/lecturer': typeof LecturerRouteWithChildren
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/student': typeof StudentRoute
+  '/course-rep/courses': typeof CourseRepCoursesRoute
+  '/course-rep/students': typeof CourseRepStudentsRoute
+  '/course-rep/timetable': typeof CourseRepTimetableRoute
   '/lecturer/courses': typeof LecturerCoursesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/lecturer' | '/login' | '/student' | '/lecturer/courses'
+  fullPaths:
+    | '/'
+    | '/course-rep'
+    | '/lecturer'
+    | '/login'
+    | '/profile'
+    | '/student'
+    | '/course-rep/courses'
+    | '/course-rep/students'
+    | '/course-rep/timetable'
+    | '/lecturer/courses'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/lecturer' | '/login' | '/student' | '/lecturer/courses'
+  to:
+    | '/'
+    | '/course-rep'
+    | '/lecturer'
+    | '/login'
+    | '/profile'
+    | '/student'
+    | '/course-rep/courses'
+    | '/course-rep/students'
+    | '/course-rep/timetable'
+    | '/lecturer/courses'
   id:
     | '__root__'
     | '/'
+    | '/course-rep'
     | '/lecturer'
     | '/login'
+    | '/profile'
     | '/student'
+    | '/course-rep/courses'
+    | '/course-rep/students'
+    | '/course-rep/timetable'
     | '/lecturer/courses'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CourseRepRoute: typeof CourseRepRouteWithChildren
   LecturerRoute: typeof LecturerRouteWithChildren
   LoginRoute: typeof LoginRoute
+  ProfileRoute: typeof ProfileRoute
   StudentRoute: typeof StudentRoute
 }
 
@@ -91,6 +163,13 @@ declare module '@tanstack/react-router' {
       path: '/student'
       fullPath: '/student'
       preLoaderRoute: typeof StudentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -107,6 +186,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LecturerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/course-rep': {
+      id: '/course-rep'
+      path: '/course-rep'
+      fullPath: '/course-rep'
+      preLoaderRoute: typeof CourseRepRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -121,8 +207,45 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LecturerCoursesRouteImport
       parentRoute: typeof LecturerRoute
     }
+    '/course-rep/timetable': {
+      id: '/course-rep/timetable'
+      path: '/timetable'
+      fullPath: '/course-rep/timetable'
+      preLoaderRoute: typeof CourseRepTimetableRouteImport
+      parentRoute: typeof CourseRepRoute
+    }
+    '/course-rep/students': {
+      id: '/course-rep/students'
+      path: '/students'
+      fullPath: '/course-rep/students'
+      preLoaderRoute: typeof CourseRepStudentsRouteImport
+      parentRoute: typeof CourseRepRoute
+    }
+    '/course-rep/courses': {
+      id: '/course-rep/courses'
+      path: '/courses'
+      fullPath: '/course-rep/courses'
+      preLoaderRoute: typeof CourseRepCoursesRouteImport
+      parentRoute: typeof CourseRepRoute
+    }
   }
 }
+
+interface CourseRepRouteChildren {
+  CourseRepCoursesRoute: typeof CourseRepCoursesRoute
+  CourseRepStudentsRoute: typeof CourseRepStudentsRoute
+  CourseRepTimetableRoute: typeof CourseRepTimetableRoute
+}
+
+const CourseRepRouteChildren: CourseRepRouteChildren = {
+  CourseRepCoursesRoute: CourseRepCoursesRoute,
+  CourseRepStudentsRoute: CourseRepStudentsRoute,
+  CourseRepTimetableRoute: CourseRepTimetableRoute,
+}
+
+const CourseRepRouteWithChildren = CourseRepRoute._addFileChildren(
+  CourseRepRouteChildren,
+)
 
 interface LecturerRouteChildren {
   LecturerCoursesRoute: typeof LecturerCoursesRoute
@@ -138,8 +261,10 @@ const LecturerRouteWithChildren = LecturerRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CourseRepRoute: CourseRepRouteWithChildren,
   LecturerRoute: LecturerRouteWithChildren,
   LoginRoute: LoginRoute,
+  ProfileRoute: ProfileRoute,
   StudentRoute: StudentRoute,
 }
 export const routeTree = rootRouteImport
