@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Radio, MapPin, Smartphone } from "lucide-react";
 import { DAYS, formatLoggedAt } from "@/lib/time";
+import { QrPanel } from "@/components/QrPanel";
 
 export const Route = createFileRoute("/lecturer")({
   component: () => (
@@ -128,19 +129,28 @@ function LecturerDashboard() {
                 </div>
               </div>
 
-              <div>
-                <p className="text-sm font-medium mb-2">
-                  Live attendance ({liveRoster.data?.length ?? 0})
-                </p>
-                {liveRoster.isLoading ? (
-                  <p className="text-xs text-muted-foreground">Loading roster…</p>
-                ) : (liveRoster.data?.length ?? 0) === 0 ? (
-                  <p className="text-xs text-muted-foreground">
-                    Class is ongoing but no one has checked in yet.
+              <div className="grid lg:grid-cols-[280px_1fr] gap-4">
+                <QrPanel
+                  title="Class Display QR"
+                  subtitle="Project this on screen"
+                  payload={`ATTENDESP|${active.data.device_id ?? "UNKNOWN"}|${active.data.course_code}|${active.data.schedule_id}`}
+                  tone="accent"
+                  caption="Identical format to the QR shown on the AttendESP unit. Students can compare to confirm they are in the right session."
+                />
+                <div>
+                  <p className="text-sm font-medium mb-2">
+                    Live attendance ({liveRoster.data?.length ?? 0})
                   </p>
-                ) : (
-                  <RosterTable rows={liveRoster.data!} />
-                )}
+                  {liveRoster.isLoading ? (
+                    <p className="text-xs text-muted-foreground">Loading roster…</p>
+                  ) : (liveRoster.data?.length ?? 0) === 0 ? (
+                    <p className="text-xs text-muted-foreground">
+                      Class is ongoing but no one has checked in yet.
+                    </p>
+                  ) : (
+                    <RosterTable rows={liveRoster.data!} />
+                  )}
+                </div>
               </div>
             </div>
           ) : (
