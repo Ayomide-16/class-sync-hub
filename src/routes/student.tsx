@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { CheckCircle2, Clock, BookOpen } from "lucide-react";
 import { formatLoggedAt } from "@/lib/time";
-import { QrPanel } from "@/components/QrPanel";
+import { StudentQrScanner } from "@/components/StudentQrScanner";
 
 export const Route = createFileRoute("/student")({
   component: () => (
@@ -69,23 +69,16 @@ function StudentDashboard() {
         <StatCard icon={Clock} label="Synced records" value={synced} tone="accent" />
       </div>
 
-      <div className="grid lg:grid-cols-[280px_1fr] gap-4">
-        {user?.matric_number && (
-          <QrPanel
-            title="My Scan QR"
-            subtitle="Show this at the AttendESP device"
-            payload={user.matric_number}
-            caption="The classroom device's camera scans this QR (the QR + BLE check-in path). Keep the screen bright and steady."
-          />
-        )}
+      <div className="grid lg:grid-cols-[1fr_1fr] gap-4">
+        <StudentQrScanner />
         <Card>
           <CardHeader>
             <CardTitle className="text-base">How to check in</CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground space-y-2">
-            <p><strong>Option A — Biometric (2FA):</strong> Tap your enrolled RFID card on the device, then place your finger on the fingerprint sensor.</p>
-            <p><strong>Option B — QR + BLE:</strong> Open this dashboard, point the device's camera at your QR. Your phone's BLE proximity confirms you are physically present.</p>
-            <p>Records sync automatically as soon as the device has internet.</p>
+            <p><strong>Option A — Biometric (2FA):</strong> Tap your enrolled RFID card on the AttendESP device, then place your finger on the fingerprint sensor.</p>
+            <p><strong>Option B — QR scan:</strong> Open the scanner here and point your phone's camera at the QR shown on the AttendESP device or the lecturer's screen.</p>
+            <p>Both paths record your attendance instantly. Biometric scans sync from the device when it next sees the network.</p>
           </CardContent>
         </Card>
       </div>
