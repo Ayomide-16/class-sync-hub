@@ -76,8 +76,8 @@ function StudentDashboard() {
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground space-y-2">
             <p><strong>Option A — Biometric (2FA):</strong> Tap your enrolled RFID card on the AttendESP device, then place your finger on the fingerprint sensor.</p>
-            <p><strong>Option B — QR scan:</strong> Open the scanner here and point your phone's camera at the QR shown on the AttendESP device or the lecturer's screen.</p>
-            <p>Both paths record your attendance instantly. Biometric scans sync from the device when it next sees the network.</p>
+            <p><strong>Option B — QR + Bluetooth:</strong> Open the scanner here, scan the QR shown on the AttendESP OLED, then approve the Bluetooth pairing prompt. The device confirms your presence and records you as present.</p>
+            <p className="text-xs">Bluetooth check-in needs Chrome or Edge on Android. iPhones must use Option A.</p>
           </CardContent>
         </Card>
       </div>
