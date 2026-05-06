@@ -1,0 +1,1 @@
+UPDATE public.schedules SET device_id = 'ESP32-LT101', venue = 'LT101 (Demo 24/7)' WHERE device_id = 'ESP32-DEMO';
