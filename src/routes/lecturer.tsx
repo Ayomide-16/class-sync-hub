@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Radio, MapPin, Smartphone } from "lucide-react";
 import { DAYS, formatLoggedAt } from "@/lib/time";
-import { QrPanel } from "@/components/QrPanel";
+import { EspQrPanel } from "@/components/EspQrPanel";
 
 export const Route = createFileRoute("/lecturer")({
   component: () => (
@@ -102,7 +102,7 @@ function LecturerDashboard() {
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Radio className={`h-5 w-5 ${active.data ? "text-green-600 animate-pulse" : "text-muted-foreground"}`} />
-              {active.data ? "Class in session" : "No ongoing class"}
+              {active.data ? "Class in session" : "No class currently scheduled"}
             </CardTitle>
             {active.data && <Badge className="bg-green-600">LIVE</Badge>}
           </div>
@@ -129,13 +129,11 @@ function LecturerDashboard() {
                 </div>
               </div>
 
-              <div className="grid lg:grid-cols-[280px_1fr] gap-4">
-                <QrPanel
-                  title="Class Display QR"
-                  subtitle="Project this on screen"
-                  payload={`ATTENDESP|${active.data.device_id ?? "UNKNOWN"}|${active.data.course_code}|${active.data.schedule_id}`}
-                  tone="accent"
-                  caption="Identical format to the QR shown on the AttendESP unit. Students can compare to confirm they are in the right session."
+              <div className="grid lg:grid-cols-[320px_1fr] gap-4">
+                <EspQrPanel
+                  scheduleId={active.data.schedule_id}
+                  deviceId={active.data.device_id ?? "ESP32-LT101"}
+                  courseCode={active.data.course_code}
                 />
                 <div>
                   <p className="text-sm font-medium mb-2">
@@ -145,7 +143,7 @@ function LecturerDashboard() {
                     <p className="text-xs text-muted-foreground">Loading roster…</p>
                   ) : (liveRoster.data?.length ?? 0) === 0 ? (
                     <p className="text-xs text-muted-foreground">
-                      Class is ongoing but no one has checked in yet.
+                      Class is in session — no one has checked in yet.
                     </p>
                   ) : (
                     <RosterTable rows={liveRoster.data!} />
