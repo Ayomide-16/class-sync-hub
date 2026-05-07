@@ -2,8 +2,6 @@
 .gitignore
 README.md
 node_modules
-pnpm-lock.yaml
-src
 supabase
 .env
 .env.local

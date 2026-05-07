@@ -1,6 +1,12 @@
 {
+  "version": 2,
   "buildCommand": "pnpm build",
-  "outputDirectory": ".",
+  "outputDirectory": "dist/client",
   "framework": "other",
-  "nodeVersion": "18.x"
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/api/server"
+    }
+  ]
 }
