@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/contexts/AuthContext";
 
 import appCss from "../styles.css?url";
+import faviconUrl from "../../favicon.png?url";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { refetchOnWindowFocus: false, retry: 1 } },
@@ -39,7 +40,10 @@ export const Route = createRootRoute({
       { title: "AttendClass — FUT Minna" },
       { name: "description", content: "Biometric attendance system for FUT Minna." },
     ],
-    links: [{ rel: "stylesheet", href: appCss }],
+    links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "icon", type: "image/png", href: faviconUrl },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,
