@@ -20,8 +20,8 @@ const HOME: Record<AppRole, string> = {
 
 const DEMO = [
   { label: "Student", id: "2022/1/86884ET", pw: "aisuedion" },
-  { label: "Lecturer", id: "2022/1/86871ET", pw: "abolarinwa" },
-  { label: "Course Rep", id: "2022/1/86861ET", pw: "zang" },
+  { label: "Lecturer", id: "foloruso@attendclass.com", pw: "lecturer" },
+  { label: "Course Rep", id: "courserep@attendclass.com", pw: "courserep" },
 ];
 
 function LoginPage() {
