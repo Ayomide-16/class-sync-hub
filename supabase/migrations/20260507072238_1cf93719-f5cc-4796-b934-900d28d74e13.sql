@@ -1,0 +1,1 @@
+UPDATE public.profiles SET full_name='Engr. Dr. Folorunso' WHERE id='4b933a07-6326-43b6-a3ed-8fc3fe5ee336';
