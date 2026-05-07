@@ -1,9 +1,17 @@
-import { createServerEntry } from '../dist/server/index.js';
+import * as serverModule from '../dist/server/index.js';
 
-const server = createServerEntry();
+// TanStack Start/Vinxi can export the server entry in different ways depending on the target.
+// We try the default export first, then createServerEntry.
+const server = serverModule.default || 
+  (typeof serverModule.createServerEntry === 'function' ? serverModule.createServerEntry() : serverModule.createServerEntry);
 
 export default async (req, res) => {
   try {
+    if (!server || typeof server.fetch !== 'function') {
+      console.error('Server module exports:', Object.keys(serverModule));
+      throw new Error('Could not find a valid server entry with a fetch method.');
+    }
+
     // Construct the full URL for the Web Request
     const protocol = req.headers['x-forwarded-proto'] || 'http';
     const host = req.headers['host'];
@@ -13,17 +21,19 @@ export default async (req, res) => {
     const request = new Request(url.href, {
       method: req.method,
       headers: req.headers,
-      // Pass the body for non-GET requests
       body: ['GET', 'HEAD'].includes(req.method) ? undefined : req,
-      // duplex is required when passing a stream as body in some environments
       duplex: 'half'
     });
 
-    const response = await server.fetch(request);
+    // Cloudflare-style worker entries expect (request, env, context)
+    // We pass process.env as the 'env' object to satisfy dependencies on env variables
+    const response = await server.fetch(request, process.env, {
+      waitUntil: () => {},
+      passThroughOnException: () => {}
+    });
     
-    // Copy response headers to Node.js response
+    // Copy response headers
     response.headers.forEach((value, key) => {
-      // Avoid setting content-encoding as Vercel handles compression
       if (key.toLowerCase() !== 'content-encoding') {
         res.setHeader(key, value);
       }
@@ -31,17 +41,16 @@ export default async (req, res) => {
     
     res.status(response.status);
     
-    // Send the response body as a buffer to handle both text and binary data
     const arrayBuffer = await response.arrayBuffer();
     res.send(Buffer.from(arrayBuffer));
 
   } catch (error) {
     console.error('Server error:', error);
-    // Provide more detail in the error response for debugging
     res.status(500).json({ 
       error: 'Internal server error',
       message: error.message,
-      stack: error.stack
+      stack: error.stack,
+      hint: 'Check if all environment variables are set in Vercel Dashboard'
     });
   }
 };
