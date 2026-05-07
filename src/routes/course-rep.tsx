@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -16,14 +16,25 @@ import { DAYS } from "@/lib/time";
 import { BookOpen, Users, Calendar, Plus } from "lucide-react";
 
 export const Route = createFileRoute("/course-rep")({
-  component: () => (
-    <ProtectedRoute allowedRoles={["course_rep"]}>
-      <DashboardLayout>
-        <CourseRepDashboard />
-      </DashboardLayout>
-    </ProtectedRoute>
-  ),
+  component: CourseRepRoute,
 });
+
+function CourseRepRoute() {
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const onDashboardRoot = pathname === "/course-rep" || pathname === "/course-rep/";
+
+  return (
+    <ProtectedRoute allowedRoles={["course_rep"]}>
+      {onDashboardRoot ? (
+        <DashboardLayout>
+          <CourseRepDashboard />
+        </DashboardLayout>
+      ) : (
+        <Outlet />
+      )}
+    </ProtectedRoute>
+  );
+}
 
 function CourseRepDashboard() {
   const qc = useQueryClient();
@@ -32,10 +43,42 @@ function CourseRepDashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("courses")
-        .select("id, course_code, course_name, lecturer:profiles!courses_lecturer_id_fkey(full_name, matric_number), schedules(id, day_of_week, start_time, end_time, venue, device_id), course_enrollments(count)")
+        .select("id, course_code, course_name, lecturer_id, schedules(id, day_of_week, start_time, end_time, venue, device_id), course_enrollments(id)")
         .order("course_code");
       if (error) throw error;
-      return data ?? [];
+
+      const courseRows = (data ?? []) as Array<{
+        id: string;
+        course_code: string;
+        course_name: string;
+        lecturer_id: string | null;
+        schedules: Array<{
+          id: string;
+          day_of_week: number;
+          start_time: string;
+          end_time: string;
+          venue: string | null;
+          device_id: string | null;
+        }>;
+        course_enrollments: Array<{ id: string }>;
+      }>;
+
+      const lecturerIds = Array.from(new Set(courseRows.map((course) => course.lecturer_id).filter(Boolean))) as string[];
+      const lecturersResult = lecturerIds.length
+        ? await supabase
+            .from("profiles")
+            .select("id, full_name, matric_number")
+            .in("id", lecturerIds)
+        : { data: [], error: null };
+
+      if (lecturersResult.error) throw lecturersResult.error;
+
+      const lecturerMap = new Map((lecturersResult.data ?? []).map((lecturer) => [lecturer.id, lecturer]));
+
+      return courseRows.map((course) => ({
+        ...course,
+        lecturer: course.lecturer_id ? lecturerMap.get(course.lecturer_id) ?? null : null,
+      }));
     },
   });
 
@@ -44,10 +87,20 @@ function CourseRepDashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("user_roles")
-        .select("user_id, profiles!inner(id, full_name, matric_number)")
+        .select("user_id")
         .eq("role", "lecturer");
       if (error) throw error;
-      return (data ?? []).map((r: any) => r.profiles);
+
+      const lecturerIds = Array.from(new Set((data ?? []).map((row) => row.user_id).filter(Boolean)));
+      const profilesResult = lecturerIds.length
+        ? await supabase
+            .from("profiles")
+            .select("id, full_name, matric_number")
+            .in("id", lecturerIds)
+        : { data: [], error: null };
+
+      if (profilesResult.error) throw profilesResult.error;
+      return profilesResult.data ?? [];
     },
   });
 
@@ -136,7 +189,7 @@ function CourseRow({ course, onChange }: { course: any; onChange: () => void }) 
           </div>
           <div className="text-xs text-muted-foreground mt-0.5">
             Lecturer: {course.lecturer?.full_name ?? "Unassigned"} ·{" "}
-            {course.course_enrollments?.[0]?.count ?? 0} students
+            {course.course_enrollments?.length ?? 0} students
           </div>
         </div>
         <NewScheduleDialog courseId={course.id} onDone={onChange} />

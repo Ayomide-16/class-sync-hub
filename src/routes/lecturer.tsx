@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -13,14 +13,25 @@ import { DAYS, formatLoggedAt } from "@/lib/time";
 import { EspQrPanel } from "@/components/EspQrPanel";
 
 export const Route = createFileRoute("/lecturer")({
-  component: () => (
-    <ProtectedRoute allowedRoles={["lecturer"]}>
-      <DashboardLayout>
-        <LecturerDashboard />
-      </DashboardLayout>
-    </ProtectedRoute>
-  ),
+  component: LecturerRoute,
 });
+
+function LecturerRoute() {
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const onDashboardRoot = pathname === "/lecturer" || pathname === "/lecturer/";
+
+  return (
+    <ProtectedRoute allowedRoles={["lecturer"]}>
+      {onDashboardRoot ? (
+        <DashboardLayout>
+          <LecturerDashboard />
+        </DashboardLayout>
+      ) : (
+        <Outlet />
+      )}
+    </ProtectedRoute>
+  );
+}
 
 function LecturerDashboard() {
   const { user } = useAuth();

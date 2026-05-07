@@ -1,10 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { CheckCircle2, Clock, BookOpen } from "lucide-react";
@@ -12,14 +13,25 @@ import { formatLoggedAt } from "@/lib/time";
 import { StudentQrScanner } from "@/components/StudentQrScanner";
 
 export const Route = createFileRoute("/student")({
-  component: () => (
-    <ProtectedRoute allowedRoles={["student"]}>
-      <DashboardLayout>
-        <StudentDashboard />
-      </DashboardLayout>
-    </ProtectedRoute>
-  ),
+  component: StudentRoute,
 });
+
+function StudentRoute() {
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const onDashboardRoot = pathname === "/student" || pathname === "/student/";
+
+  return (
+    <ProtectedRoute allowedRoles={["student"]}>
+      {onDashboardRoot ? (
+        <DashboardLayout>
+          <StudentDashboard />
+        </DashboardLayout>
+      ) : (
+        <Outlet />
+      )}
+    </ProtectedRoute>
+  );
+}
 
 function StudentDashboard() {
   const { user } = useAuth();
@@ -43,7 +55,7 @@ function StudentDashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("attendance_logs")
-        .select("id, method, logged_at, raw_time, time_synced, course:courses(course_code, course_name)")
+        .select("id, method, logged_at, raw_time, time_synced, course_id, course:courses(course_code, course_name)")
         .eq("matric_number", user!.matric_number!)
         .order("created_at", { ascending: false })
         .limit(200);
@@ -81,6 +93,20 @@ function StudentDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Courses</CardTitle>
+          <p className="text-xs text-muted-foreground">
+            Open your enrolled courses and inspect attendance per course.
+          </p>
+        </CardHeader>
+        <CardContent>
+          <Button asChild>
+            <Link to="/student/courses">Open Courses</Link>
+          </Button>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
@@ -146,22 +172,6 @@ function StudentDashboard() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>My courses</CardTitle>
-        </CardHeader>
-        <CardContent className="grid sm:grid-cols-2 gap-3">
-          {(enrollments.data ?? []).map((e: any) => (
-            <div key={e.course.id} className="border rounded-md p-3 bg-card">
-              <div className="font-medium">{e.course.course_code}</div>
-              <div className="text-xs text-muted-foreground">{e.course.course_name}</div>
-            </div>
-          ))}
-          {enrollments.data?.length === 0 && (
-            <p className="text-sm text-muted-foreground">Not enrolled in any courses yet.</p>
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 }

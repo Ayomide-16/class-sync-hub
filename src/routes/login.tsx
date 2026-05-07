@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { GraduationCap, Loader2 } from "lucide-react";
+import { GraduationCap, Loader2, BookOpen, Shield, Users } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
@@ -50,86 +50,73 @@ function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2 bg-gradient-to-br from-primary/10 via-background to-accent/10">
-      <div className="hidden lg:flex flex-col justify-between p-12 bg-primary text-primary-foreground">
-        <div className="flex items-center gap-3">
-          <GraduationCap className="h-8 w-8" />
-          <div>
-            <div className="text-xl font-semibold">AttendClass</div>
-            <div className="text-sm opacity-80">Federal University of Technology, Minna</div>
+    <div className="min-h-screen flex items-center justify-center bg-background px-4 py-10">
+      <Card className="w-full max-w-[412px] rounded-2xl border border-border/70 shadow-[0_24px_60px_rgba(91,45,120,0.12)]">
+        <CardHeader className="space-y-3 pt-8 text-center">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
+            <GraduationCap className="h-6 w-6" />
           </div>
-        </div>
-        <div>
-          <h1 className="text-4xl font-bold leading-tight">
-            Biometric attendance, <br /> made effortless.
-          </h1>
-          <p className="mt-4 max-w-md text-primary-foreground/80">
-            Sign in to view your live class roster, manage timetables, or check your own
-            attendance — all powered by your classroom's AttendESP device.
-          </p>
-        </div>
-        <div className="text-xs opacity-70">© {new Date().getFullYear()} AttendClass</div>
-      </div>
-
-      <div className="flex items-center justify-center p-6">
-        <Card className="w-full max-w-md shadow-lg">
-          <CardHeader className="space-y-1">
-            <div className="flex items-center gap-2 lg:hidden mb-2">
-              <GraduationCap className="h-6 w-6 text-primary" />
-              <span className="font-semibold">AttendClass</span>
+          <div>
+            <CardTitle className="text-xl">AttendClass</CardTitle>
+            <p className="text-sm text-muted-foreground">FUT Minna</p>
+          </div>
+        </CardHeader>
+        <CardContent className="pb-8">
+          <form onSubmit={submit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="id">Email or Matric Number</Label>
+              <Input
+                id="id"
+                placeholder="Enter your login ID"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                autoComplete="username"
+              />
             </div>
-            <CardTitle className="text-2xl">Sign in</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Use your matric number and surname (lowercase).
-            </p>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={submit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="id">Matric number</Label>
-                <Input
-                  id="id"
-                  placeholder="e.g. 2022/1/86871ET"
-                  value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value)}
-                  autoComplete="username"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="pw">Password (your surname)</Label>
-                <Input
-                  id="pw"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  autoComplete="current-password"
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={busy}>
-                {busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                Sign in
-              </Button>
-            </form>
+            <div className="space-y-2">
+              <Label htmlFor="pw">Password</Label>
+              <Input
+                id="pw"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+              />
+            </div>
+            <Button type="submit" className="w-full h-12 text-base" disabled={busy}>
+              {busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Sign In
+            </Button>
+          </form>
 
-            <div className="mt-6">
-              <p className="text-xs text-muted-foreground mb-2">Quick demo logins:</p>
-              <div className="grid grid-cols-3 gap-2">
-                {DEMO.map((d) => (
-                  <Button
+          <div className="mt-6 border-t pt-5">
+            <p className="text-sm text-muted-foreground mb-3">Quick demo login</p>
+            <div className="grid grid-cols-3 gap-2">
+              {DEMO.map((d, index) => {
+                const icon = index === 0 ? Users : index === 1 ? Shield : BookOpen;
+                const Icon = icon;
+
+                return (
+                  <button
                     key={d.label}
                     type="button"
-                    variant="outline"
-                    size="sm"
                     onClick={() => fill(d.id, d.pw)}
+                    className="rounded-xl border border-border bg-card p-3 text-left transition hover:border-primary/30 hover:bg-primary/5"
                   >
-                    {d.label}
-                  </Button>
-                ))}
-              </div>
+                    <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
+                      <Icon className="h-4 w-4 text-primary" />
+                      {d.label}
+                    </div>
+                    <div className="mt-1 truncate text-[11px] text-muted-foreground">
+                      {d.id}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
