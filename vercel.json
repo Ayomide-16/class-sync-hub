@@ -2,7 +2,6 @@
   "version": 2,
   "buildCommand": "pnpm build",
   "outputDirectory": "dist/client",
-  "framework": "other",
   "rewrites": [
     {
       "source": "/(.*)",
