@@ -16,6 +16,7 @@ import { Route as LecturerRouteImport } from './routes/lecturer'
 import { Route as CourseRepRouteImport } from './routes/course-rep'
 import { Route as AeirgRouteImport } from './routes/aeirg'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AeirgIndexRouteImport } from './routes/aeirg.index'
 import { Route as LecturerCoursesRouteImport } from './routes/lecturer.courses'
 import { Route as CourseRepTimetableRouteImport } from './routes/course-rep.timetable'
 import { Route as CourseRepStudentsRouteImport } from './routes/course-rep.students'
@@ -57,6 +58,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AeirgIndexRoute = AeirgIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AeirgRoute,
+} as any)
 const LecturerCoursesRoute = LecturerCoursesRouteImport.update({
   id: '/courses',
   path: '/courses',
@@ -96,10 +102,10 @@ export interface FileRoutesByFullPath {
   '/course-rep/students': typeof CourseRepStudentsRoute
   '/course-rep/timetable': typeof CourseRepTimetableRoute
   '/lecturer/courses': typeof LecturerCoursesRoute
+  '/aeirg/': typeof AeirgIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/aeirg': typeof AeirgRouteWithChildren
   '/course-rep': typeof CourseRepRouteWithChildren
   '/lecturer': typeof LecturerRouteWithChildren
   '/login': typeof LoginRoute
@@ -110,6 +116,7 @@ export interface FileRoutesByTo {
   '/course-rep/students': typeof CourseRepStudentsRoute
   '/course-rep/timetable': typeof CourseRepTimetableRoute
   '/lecturer/courses': typeof LecturerCoursesRoute
+  '/aeirg': typeof AeirgIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -125,6 +132,7 @@ export interface FileRoutesById {
   '/course-rep/students': typeof CourseRepStudentsRoute
   '/course-rep/timetable': typeof CourseRepTimetableRoute
   '/lecturer/courses': typeof LecturerCoursesRoute
+  '/aeirg/': typeof AeirgIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -141,10 +149,10 @@ export interface FileRouteTypes {
     | '/course-rep/students'
     | '/course-rep/timetable'
     | '/lecturer/courses'
+    | '/aeirg/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/aeirg'
     | '/course-rep'
     | '/lecturer'
     | '/login'
@@ -155,6 +163,7 @@ export interface FileRouteTypes {
     | '/course-rep/students'
     | '/course-rep/timetable'
     | '/lecturer/courses'
+    | '/aeirg'
   id:
     | '__root__'
     | '/'
@@ -169,6 +178,7 @@ export interface FileRouteTypes {
     | '/course-rep/students'
     | '/course-rep/timetable'
     | '/lecturer/courses'
+    | '/aeirg/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -232,6 +242,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/aeirg/': {
+      id: '/aeirg/'
+      path: '/'
+      fullPath: '/aeirg/'
+      preLoaderRoute: typeof AeirgIndexRouteImport
+      parentRoute: typeof AeirgRoute
+    }
     '/lecturer/courses': {
       id: '/lecturer/courses'
       path: '/courses'
@@ -272,10 +289,12 @@ declare module '@tanstack/react-router' {
 
 interface AeirgRouteChildren {
   AeirgAdminRoute: typeof AeirgAdminRoute
+  AeirgIndexRoute: typeof AeirgIndexRoute
 }
 
 const AeirgRouteChildren: AeirgRouteChildren = {
   AeirgAdminRoute: AeirgAdminRoute,
+  AeirgIndexRoute: AeirgIndexRoute,
 }
 
 const AeirgRouteWithChildren = AeirgRoute._addFileChildren(AeirgRouteChildren)
@@ -320,3 +339,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

@@ -31,7 +31,7 @@ import {
   downloadRegisterXlsx,
 } from "@/lib/aeirg";
 
-export const Route = createFileRoute("/aeirg")({
+export const Route = createFileRoute("/aeirg/")({
   head: () => ({
     meta: [
       { title: "AEIRG IT Attendance" },
