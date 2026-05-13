@@ -397,9 +397,7 @@ function StudentDetailTab({
       const status = cset.has(d) ? "Holiday" : presence.get(student!.matric_number)?.has(d) ? "Present" : "Absent";
       rows.push([d, dayName(d), status]);
     }
-    void 0;
-    }
-    downloadCsv(rows, `AEIRG_${student.matric_number}_${today}.csv`);
+    downloadCsv(rows, `AEIRG_${student!.matric_number}_${today}.csv`);
   }
 
   return (
