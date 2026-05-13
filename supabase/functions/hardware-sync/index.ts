@@ -139,11 +139,66 @@ Deno.serve(async (req) => {
         return json({ error: "db_insert_failed", detail: error.message }, 500);
       }
     }
+
+    // ---- AEIRG addendum (independent of main attendance pipeline) ----
+    // Cross-reference incoming matric numbers against aeirg_students. For any matches,
+    // record a raw packet and upsert one attendance row per student under today's WAT date.
+    // Working-days-only rule: if today is Saturday (WAT), assign to Friday; if Sunday, to Monday.
+    let aeirgMatched = 0;
+    try {
+      const incomingMatrics = Array.from(
+        new Set(dataRows.map((r) => r[2]).filter(Boolean)),
+      );
+      if (incomingMatrics.length > 0) {
+        const { data: aeirgStudents } = await supabase
+          .from("aeirg_students")
+          .select("matric_number")
+          .in("matric_number", incomingMatrics);
+        const matched = (aeirgStudents ?? []).map((s: any) => s.matric_number);
+        if (matched.length > 0) {
+          // Compute WAT date, snap weekend → nearest weekday.
+          const watNow = new Date(Date.now() + 60 * 60 * 1000);
+          const dow = watNow.getUTCDay(); // 0=Sun..6=Sat
+          if (dow === 6) watNow.setUTCDate(watNow.getUTCDate() - 1); // Sat → Fri
+          else if (dow === 0) watNow.setUTCDate(watNow.getUTCDate() + 1); // Sun → Mon
+          const assignedDate = watNow.toISOString().slice(0, 10);
+
+          const { data: pkt, error: pktErr } = await supabase
+            .from("aeirg_raw_packets")
+            .insert({
+              assigned_date: assignedDate,
+              matric_numbers_json: matched,
+              packet_source: "hardware-sync",
+            })
+            .select("id")
+            .single();
+          if (pktErr) {
+            console.error("aeirg packet insert failed", pktErr);
+          } else {
+            const rows = matched.map((m) => ({
+              matric_number: m,
+              attendance_date: assignedDate,
+              source_packet_id: pkt.id,
+              manually_added: false,
+            }));
+            const { error: attErr } = await supabase
+              .from("aeirg_attendance")
+              .upsert(rows, { onConflict: "matric_number,attendance_date", ignoreDuplicates: true });
+            if (attErr) console.error("aeirg attendance upsert failed", attErr);
+            aeirgMatched = matched.length;
+          }
+        }
+      }
+    } catch (e) {
+      console.error("aeirg block error", e);
+    }
+
     return json({
       ok: true,
       type: "attendance",
       processed: inserts.length,
       unmatched: unmatchedCount,
+      aeirg_matched: aeirgMatched,
     });
   }
 
