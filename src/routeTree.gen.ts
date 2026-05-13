@@ -14,6 +14,7 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LecturerRouteImport } from './routes/lecturer'
 import { Route as CourseRepRouteImport } from './routes/course-rep'
+import { Route as AeirgRouteImport } from './routes/aeirg'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LecturerCoursesRouteImport } from './routes/lecturer.courses'
 import { Route as CourseRepTimetableRouteImport } from './routes/course-rep.timetable'
@@ -45,6 +46,11 @@ const CourseRepRoute = CourseRepRouteImport.update({
   path: '/course-rep',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AeirgRoute = AeirgRouteImport.update({
+  id: '/aeirg',
+  path: '/aeirg',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -73,6 +79,7 @@ const CourseRepCoursesRoute = CourseRepCoursesRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/aeirg': typeof AeirgRoute
   '/course-rep': typeof CourseRepRouteWithChildren
   '/lecturer': typeof LecturerRouteWithChildren
   '/login': typeof LoginRoute
@@ -85,6 +92,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/aeirg': typeof AeirgRoute
   '/course-rep': typeof CourseRepRouteWithChildren
   '/lecturer': typeof LecturerRouteWithChildren
   '/login': typeof LoginRoute
@@ -98,6 +106,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/aeirg': typeof AeirgRoute
   '/course-rep': typeof CourseRepRouteWithChildren
   '/lecturer': typeof LecturerRouteWithChildren
   '/login': typeof LoginRoute
@@ -112,6 +121,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/aeirg'
     | '/course-rep'
     | '/lecturer'
     | '/login'
@@ -124,6 +134,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/aeirg'
     | '/course-rep'
     | '/lecturer'
     | '/login'
@@ -136,6 +147,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/aeirg'
     | '/course-rep'
     | '/lecturer'
     | '/login'
@@ -149,6 +161,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AeirgRoute: typeof AeirgRoute
   CourseRepRoute: typeof CourseRepRouteWithChildren
   LecturerRoute: typeof LecturerRouteWithChildren
   LoginRoute: typeof LoginRoute
@@ -191,6 +204,13 @@ declare module '@tanstack/react-router' {
       path: '/course-rep'
       fullPath: '/course-rep'
       preLoaderRoute: typeof CourseRepRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/aeirg': {
+      id: '/aeirg'
+      path: '/aeirg'
+      fullPath: '/aeirg'
+      preLoaderRoute: typeof AeirgRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -261,6 +281,7 @@ const LecturerRouteWithChildren = LecturerRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AeirgRoute: AeirgRoute,
   CourseRepRoute: CourseRepRouteWithChildren,
   LecturerRoute: LecturerRouteWithChildren,
   LoginRoute: LoginRoute,
