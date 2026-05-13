@@ -127,6 +127,13 @@ function LoginPage() {
                 ))}
               </div>
             </div>
+
+            <div className="mt-6 pt-4 border-t text-center">
+              <a href="/aeirg" className="text-sm text-primary hover:underline font-medium">
+                AEIRG IT Attendance →
+              </a>
+              <p className="text-xs text-muted-foreground mt-1">Public attendance register (no login required)</p>
+            </div>
           </CardContent>
         </Card>
       </div>
