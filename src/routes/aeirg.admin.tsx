@@ -25,7 +25,7 @@ import {
   workingDaysBetween, presenceMap, manualMap, cancelledSet,
   attendanceStats, sortBySurname, watToday,
 } from "@/lib/aeirg.ts";
-import { RegisterTab } from "./aeirg";
+import { RegisterTab } from "./aeirg.index";
 import {
   BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip,
 } from "recharts";
