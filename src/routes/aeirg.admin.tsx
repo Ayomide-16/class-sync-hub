@@ -439,7 +439,7 @@ function RegisterAdmin({ data, call }: { data: ReturnType<typeof useAdminData>; 
         today={today}
         editable
         manual={manual}
-        onToggle={async (m, d, currentlyPresent) => {
+        onToggle={async (m: string, d: string, currentlyPresent: boolean) => {
           await call("toggleAttendance", { matric_number: m, attendance_date: d, currentlyPresent });
         }}
       />
