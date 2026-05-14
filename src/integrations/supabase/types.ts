@@ -14,6 +14,138 @@ export type Database = {
   }
   public: {
     Tables: {
+      aeirg_admin_config: {
+        Row: {
+          id: number
+          it_period_end_date: string | null
+          password_hash: string
+        }
+        Insert: {
+          id?: number
+          it_period_end_date?: string | null
+          password_hash: string
+        }
+        Update: {
+          id?: number
+          it_period_end_date?: string | null
+          password_hash?: string
+        }
+        Relationships: []
+      }
+      aeirg_attendance: {
+        Row: {
+          attendance_date: string
+          created_at: string
+          id: string
+          manually_added: boolean
+          matric_number: string
+          source_packet_id: string | null
+        }
+        Insert: {
+          attendance_date: string
+          created_at?: string
+          id?: string
+          manually_added?: boolean
+          matric_number: string
+          source_packet_id?: string | null
+        }
+        Update: {
+          attendance_date?: string
+          created_at?: string
+          id?: string
+          manually_added?: boolean
+          matric_number?: string
+          source_packet_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aeirg_attendance_matric_number_fkey"
+            columns: ["matric_number"]
+            isOneToOne: false
+            referencedRelation: "aeirg_students"
+            referencedColumns: ["matric_number"]
+          },
+          {
+            foreignKeyName: "aeirg_attendance_source_packet_id_fkey"
+            columns: ["source_packet_id"]
+            isOneToOne: false
+            referencedRelation: "aeirg_raw_packets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      aeirg_cancelled_days: {
+        Row: {
+          cancelled_date: string
+          created_at: string
+          id: string
+          reason: string | null
+        }
+        Insert: {
+          cancelled_date: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+        }
+        Update: {
+          cancelled_date?: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+        }
+        Relationships: []
+      }
+      aeirg_raw_packets: {
+        Row: {
+          assigned_date: string
+          id: string
+          matric_numbers_json: Json
+          packet_source: string | null
+          received_at: string
+        }
+        Insert: {
+          assigned_date: string
+          id?: string
+          matric_numbers_json: Json
+          packet_source?: string | null
+          received_at?: string
+        }
+        Update: {
+          assigned_date?: string
+          id?: string
+          matric_numbers_json?: Json
+          packet_source?: string | null
+          received_at?: string
+        }
+        Relationships: []
+      }
+      aeirg_students: {
+        Row: {
+          added_at: string
+          id: string
+          matric_number: string
+          must_change_password: boolean
+          name: string
+          password_hash: string
+        }
+        Insert: {
+          added_at?: string
+          id?: string
+          matric_number: string
+          must_change_password?: boolean
+          name: string
+          password_hash?: string
+        }
+        Update: {
+          added_at?: string
+          id?: string
+          matric_number?: string
+          must_change_password?: boolean
+          name?: string
+          password_hash?: string
+        }
+        Relationships: []
+      }
       attendance_logs: {
         Row: {
           course_id: string | null
@@ -263,6 +395,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      aeirg_student_change_password: {
+        Args: { _current: string; _matric: string; _new: string }
+        Returns: boolean
+      }
+      aeirg_student_force_set_password: {
+        Args: { _matric: string; _new: string }
+        Returns: boolean
+      }
+      aeirg_student_login: {
+        Args: { _matric: string; _password: string }
+        Returns: Json
+      }
+      aeirg_update_password: {
+        Args: { _current: string; _new: string }
+        Returns: boolean
+      }
+      aeirg_verify_password: { Args: { _password: string }; Returns: boolean }
       current_user_role: {
         Args: never
         Returns: Database["public"]["Enums"]["app_role"]
