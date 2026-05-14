@@ -39,11 +39,16 @@ export const Route = createFileRoute("/aeirg/admin")({
 });
 
 function AeirgAdminPage() {
+  const nav = useNavigate();
   const [pw, setPw] = useState<string | null>(
     typeof window !== "undefined" ? sessionStorage.getItem(SESSION_KEY) : null,
   );
   if (!pw) return <AdminLogin onSuccess={(p) => { sessionStorage.setItem(SESSION_KEY, p); setPw(p); }} />;
-  return <AdminShell pw={pw} onLogout={() => { sessionStorage.removeItem(SESSION_KEY); setPw(null); }} />;
+  return <AdminShell pw={pw} onLogout={() => {
+    sessionStorage.removeItem(SESSION_KEY);
+    setPw(null);
+    nav({ to: "/aeirg/login" });
+  }} />;
 }
 
 function AdminLogin({ onSuccess }: { onSuccess: (pw: string) => void }) {
