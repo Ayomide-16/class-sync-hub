@@ -128,7 +128,7 @@ function Dashboard({ session }: { session: StudentSession }) {
       const { data, error } = await supabase.from("aeirg_attendance" as any)
         .select("attendance_date").order("attendance_date", { ascending: true }).limit(1);
       if (error) throw error;
-      return (data ?? []) as { attendance_date: string }[];
+      return (data ?? []) as unknown as { attendance_date: string }[];
     },
   });
 
