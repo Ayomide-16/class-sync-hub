@@ -2,7 +2,7 @@
 // File MUST stay thin (only createServerFn + imports) per server-fn rules.
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { supabaseAdmin } from "@/integrations/supabase-client.server";
 
 const Schema = z.object({
   password: z.string().min(1),
