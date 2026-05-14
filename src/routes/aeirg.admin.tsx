@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -39,11 +39,19 @@ export const Route = createFileRoute("/aeirg/admin")({
 });
 
 function AeirgAdminPage() {
+  const nav = useNavigate();
   const [pw, setPw] = useState<string | null>(
     typeof window !== "undefined" ? sessionStorage.getItem(SESSION_KEY) : null,
   );
-  if (!pw) return <AdminLogin onSuccess={(p) => { sessionStorage.setItem(SESSION_KEY, p); setPw(p); }} />;
-  return <AdminShell pw={pw} onLogout={() => { sessionStorage.removeItem(SESSION_KEY); setPw(null); }} />;
+  useEffect(() => {
+    if (!pw) nav({ to: "/aeirg/login" });
+  }, [pw, nav]);
+  if (!pw) return null;
+  return <AdminShell pw={pw} onLogout={() => {
+    sessionStorage.removeItem(SESSION_KEY);
+    setPw(null);
+    nav({ to: "/aeirg/login" });
+  }} />;
 }
 
 function AdminLogin({ onSuccess }: { onSuccess: (pw: string) => void }) {
