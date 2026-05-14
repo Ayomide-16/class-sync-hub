@@ -124,19 +124,25 @@ export type Database = {
           added_at: string
           id: string
           matric_number: string
+          must_change_password: boolean
           name: string
+          password_hash: string
         }
         Insert: {
           added_at?: string
           id?: string
           matric_number: string
+          must_change_password?: boolean
           name: string
+          password_hash?: string
         }
         Update: {
           added_at?: string
           id?: string
           matric_number?: string
+          must_change_password?: boolean
           name?: string
+          password_hash?: string
         }
         Relationships: []
       }
@@ -389,6 +395,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      aeirg_student_change_password: {
+        Args: { _current: string; _matric: string; _new: string }
+        Returns: boolean
+      }
+      aeirg_student_force_set_password: {
+        Args: { _matric: string; _new: string }
+        Returns: boolean
+      }
+      aeirg_student_login: {
+        Args: { _matric: string; _password: string }
+        Returns: Json
+      }
       aeirg_update_password: {
         Args: { _current: string; _new: string }
         Returns: boolean
