@@ -94,8 +94,8 @@ function AeirgPublic() {
             <Link to="/">
               <Button variant="ghost" size="sm">AttendClass Home</Button>
             </Link>
-            <Link to="/aeirg/admin">
-              <Button variant="outline" size="sm">Admin</Button>
+            <Link to="/aeirg/login">
+              <Button variant="outline" size="sm">Login</Button>
             </Link>
           </div>
         </div>
