@@ -43,7 +43,10 @@ function AeirgAdminPage() {
   const [pw, setPw] = useState<string | null>(
     typeof window !== "undefined" ? sessionStorage.getItem(SESSION_KEY) : null,
   );
-  if (!pw) return <AdminLogin onSuccess={(p) => { sessionStorage.setItem(SESSION_KEY, p); setPw(p); }} />;
+  useEffect(() => {
+    if (!pw) nav({ to: "/aeirg/login" });
+  }, [pw, nav]);
+  if (!pw) return null;
   return <AdminShell pw={pw} onLogout={() => {
     sessionStorage.removeItem(SESSION_KEY);
     setPw(null);
