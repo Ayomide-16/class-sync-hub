@@ -18,8 +18,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import {
-  LayoutDashboard, Users, FileSpreadsheet, Inbox, CalendarX, Settings as SettingsIcon, LogOut, Search, Trash2, Pencil, Edit,
+  LayoutDashboard, Users, FileSpreadsheet, Inbox, CalendarX, Settings as SettingsIcon, LogOut, Search, Trash2, Pencil, Edit, ShieldAlert,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import {
   AeirgStudent, AeirgAttendance, AeirgCancelledDay,
   workingDaysBetween, presenceMap, manualMap, cancelledSet,
@@ -103,15 +104,28 @@ function AdminLogin({ onSuccess }: { onSuccess: (pw: string) => void }) {
   );
 }
 
-type Section = "dashboard" | "students" | "register" | "packets" | "cancelled" | "settings";
+type Section = "dashboard" | "students" | "register" | "packets" | "cancelled" | "flags" | "settings";
 
 function AdminShell({ pw, onLogout }: { pw: string; onLogout: () => void }) {
   const [section, setSection] = useState<Section>("dashboard");
-  const items: { id: Section; label: string; icon: any }[] = [
+  const flagCount = useQuery({
+    queryKey: ["aeirg", "flag-count"],
+    refetchInterval: 30_000,
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("checkin_flags" as any)
+        .select("id", { count: "exact", head: true })
+        .eq("dismissed", false);
+      if (error) throw error;
+      return count ?? 0;
+    },
+  });
+  const items: { id: Section; label: string; icon: any; badge?: number }[] = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "students", label: "Students", icon: Users },
     { id: "register", label: "Attendance Register", icon: FileSpreadsheet },
     { id: "packets", label: "Raw Packets", icon: Inbox },
+    { id: "flags", label: "Flagged Check-ins", icon: ShieldAlert, badge: flagCount.data ?? 0 },
     { id: "cancelled", label: "Cancelled Days", icon: CalendarX },
     { id: "settings", label: "Settings", icon: SettingsIcon },
   ];
@@ -129,7 +143,10 @@ function AdminShell({ pw, onLogout }: { pw: string; onLogout: () => void }) {
               onClick={() => setSection(it.id)}
               className={`w-full flex items-center gap-2 px-3 py-2 rounded text-sm text-left ${section === it.id ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
             >
-              <it.icon className="h-4 w-4" />{it.label}
+              <it.icon className="h-4 w-4" /><span className="flex-1">{it.label}</span>
+              {!!it.badge && it.badge > 0 && (
+                <Badge variant="destructive" className="h-5 px-1.5 text-[10px]">{it.badge}</Badge>
+              )}
             </button>
           ))}
         </nav>
@@ -188,7 +205,16 @@ function useAdminData() {
       return data as any;
     },
   });
-  return { students, attendance, cancelled, packets, config };
+  const flags = useQuery({
+    queryKey: ["aeirg", "flags"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("checkin_flags" as any)
+        .select("*").eq("dismissed", false).order("flagged_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as any[];
+    },
+  });
+  return { students, attendance, cancelled, packets, config, flags };
 }
 
 function AdminSection({ section, pw }: { section: Section; pw: string }) {
@@ -204,6 +230,8 @@ function AdminSection({ section, pw }: { section: Section; pw: string }) {
         qc.invalidateQueries({ queryKey: ["aeirg", "cancelled"] }),
         qc.invalidateQueries({ queryKey: ["aeirg", "packets"] }),
         qc.invalidateQueries({ queryKey: ["aeirg", "config"] }),
+        qc.invalidateQueries({ queryKey: ["aeirg", "flags"] }),
+        qc.invalidateQueries({ queryKey: ["aeirg", "flag-count"] }),
       ]);
       return r;
     } catch (e: any) {
@@ -220,6 +248,7 @@ function AdminSection({ section, pw }: { section: Section; pw: string }) {
     case "register": return <RegisterAdmin data={data} call={call} />;
     case "packets": return <PacketsSection data={data} call={call} />;
     case "cancelled": return <CancelledSection data={data} call={call} />;
+    case "flags": return <FlagsSection data={data} call={call} />;
     case "settings": return <SettingsSection data={data} call={call} />;
   }
 }
@@ -635,6 +664,75 @@ function SettingsSection({ data, call }: { data: ReturnType<typeof useAdminData>
           }}>Update Password</Button>
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function FlagsSection({ data, call }: { data: ReturnType<typeof useAdminData>; call: (op: string, args?: any) => Promise<any> }) {
+  const flags = data.flags.data ?? [];
+  return (
+    <div className="space-y-4">
+      <h2 className="text-2xl font-bold">Flagged Check-ins</h2>
+      <p className="text-sm text-muted-foreground">
+        Same browser used by different students. Review each one and dismiss or revoke the attendance.
+      </p>
+      <Card><CardContent className="p-0">
+        <table className="w-full text-sm">
+          <thead className="bg-muted">
+            <tr>
+              <th className="text-left px-3 py-2">Date / Time</th>
+              <th className="text-left px-3 py-2">Browser</th>
+              <th className="text-left px-3 py-2">Previous Student</th>
+              <th className="text-left px-3 py-2">Attempted Student</th>
+              <th className="text-left px-3 py-2">Device</th>
+              <th className="text-left px-3 py-2">Source</th>
+              <th className="text-right px-3 py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {flags.map((f: any) => (
+              <tr key={f.id} className="border-b">
+                <td className="px-3 py-2 font-mono text-xs">{new Date(f.flagged_at).toLocaleString()}</td>
+                <td className="px-3 py-2 font-mono text-xs">{String(f.browser_token).slice(0, 8)}…</td>
+                <td className="px-3 py-2 font-mono text-xs">{f.first_student_id}</td>
+                <td className="px-3 py-2 font-mono text-xs">{f.attempted_student_id}</td>
+                <td className="px-3 py-2 text-xs text-muted-foreground">{f.ble_device_name ?? "—"}</td>
+                <td className="px-3 py-2 text-xs">{f.source}</td>
+                <td className="px-3 py-2 text-right space-x-1">
+                  <Button size="sm" variant="outline" onClick={async () => {
+                    await call("dismissFlag", { id: f.id });
+                    toast.success("Dismissed");
+                  }}>Dismiss</Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button size="sm" variant="destructive">Revoke Attendance</Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Revoke attendance?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Removes the attendance record for {f.attempted_student_id} on{" "}
+                          {f.flagged_date ?? new Date(f.flagged_at).toISOString().slice(0, 10)} and dismisses this flag.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={async () => {
+                          await call("revokeFlaggedAttendance", { id: f.id });
+                          toast.success("Attendance revoked");
+                        }}>Revoke</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </td>
+              </tr>
+            ))}
+            {flags.length === 0 && (
+              <tr><td colSpan={7} className="text-center py-6 text-muted-foreground">No flagged check-ins.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </CardContent></Card>
     </div>
   );
 }

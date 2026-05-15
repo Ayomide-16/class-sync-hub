@@ -116,6 +116,30 @@ export const aeirgAdmin = createServerFn({ method: "POST" })
         if (!r.data) throw new Error("Current password incorrect");
         return { ok: true };
       }
+      case "dismissFlag": {
+        const r = await sb.from("checkin_flags")
+          .update({ dismissed: true, dismissed_at: new Date().toISOString() })
+          .eq("id", args.id);
+        if (r.error) throw new Error(r.error.message);
+        return { ok: true };
+      }
+      case "revokeFlaggedAttendance": {
+        // Look up the flag to get attempted student + flagged date.
+        const f = await sb.from("checkin_flags").select("*").eq("id", args.id).single();
+        if (f.error) throw new Error(f.error.message);
+        const flag = f.data;
+        const dateIso = flag.flagged_date
+          ?? new Date(flag.flagged_at).toISOString().slice(0, 10);
+        const del = await sb.from("aeirg_attendance").delete()
+          .eq("matric_number", flag.attempted_student_id)
+          .eq("attendance_date", dateIso);
+        if (del.error) throw new Error(del.error.message);
+        const upd = await sb.from("checkin_flags")
+          .update({ dismissed: true, dismissed_at: new Date().toISOString() })
+          .eq("id", args.id);
+        if (upd.error) throw new Error(upd.error.message);
+        return { ok: true };
+      }
       default:
         throw new Error("Unknown op: " + data.op);
     }
