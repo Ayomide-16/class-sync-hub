@@ -248,6 +248,7 @@ function AdminSection({ section, pw }: { section: Section; pw: string }) {
     case "register": return <RegisterAdmin data={data} call={call} />;
     case "packets": return <PacketsSection data={data} call={call} />;
     case "cancelled": return <CancelledSection data={data} call={call} />;
+    case "flags": return <FlagsSection data={data} call={call} />;
     case "settings": return <SettingsSection data={data} call={call} />;
   }
 }
