@@ -358,13 +358,12 @@ const LAST_STUDENT_KEY = "aeirg_last_checkin_student";
 
 export function getBrowserToken(): string {
   if (typeof window === "undefined") return "";
-  let token = localStorage.getItem(BROWSER_TOKEN_KEY);
-  if (!token) {
-    token = (crypto as any)?.randomUUID
-      ? (crypto as any).randomUUID()
-      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    localStorage.setItem(BROWSER_TOKEN_KEY, token);
-  }
+  const existing = localStorage.getItem(BROWSER_TOKEN_KEY);
+  if (existing) return existing;
+  const token: string = (crypto as any)?.randomUUID
+    ? (crypto as any).randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  localStorage.setItem(BROWSER_TOKEN_KEY, token);
   return token;
 }
 
