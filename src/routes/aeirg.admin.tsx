@@ -104,15 +104,28 @@ function AdminLogin({ onSuccess }: { onSuccess: (pw: string) => void }) {
   );
 }
 
-type Section = "dashboard" | "students" | "register" | "packets" | "cancelled" | "settings";
+type Section = "dashboard" | "students" | "register" | "packets" | "cancelled" | "flags" | "settings";
 
 function AdminShell({ pw, onLogout }: { pw: string; onLogout: () => void }) {
   const [section, setSection] = useState<Section>("dashboard");
-  const items: { id: Section; label: string; icon: any }[] = [
+  const flagCount = useQuery({
+    queryKey: ["aeirg", "flag-count"],
+    refetchInterval: 30_000,
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("checkin_flags" as any)
+        .select("id", { count: "exact", head: true })
+        .eq("dismissed", false);
+      if (error) throw error;
+      return count ?? 0;
+    },
+  });
+  const items: { id: Section; label: string; icon: any; badge?: number }[] = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "students", label: "Students", icon: Users },
     { id: "register", label: "Attendance Register", icon: FileSpreadsheet },
     { id: "packets", label: "Raw Packets", icon: Inbox },
+    { id: "flags", label: "Flagged Check-ins", icon: ShieldAlert, badge: flagCount.data ?? 0 },
     { id: "cancelled", label: "Cancelled Days", icon: CalendarX },
     { id: "settings", label: "Settings", icon: SettingsIcon },
   ];
@@ -130,7 +143,10 @@ function AdminShell({ pw, onLogout }: { pw: string; onLogout: () => void }) {
               onClick={() => setSection(it.id)}
               className={`w-full flex items-center gap-2 px-3 py-2 rounded text-sm text-left ${section === it.id ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
             >
-              <it.icon className="h-4 w-4" />{it.label}
+              <it.icon className="h-4 w-4" /><span className="flex-1">{it.label}</span>
+              {!!it.badge && it.badge > 0 && (
+                <Badge variant="destructive" className="h-5 px-1.5 text-[10px]">{it.badge}</Badge>
+              )}
             </button>
           ))}
         </nav>
