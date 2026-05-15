@@ -8,35 +8,21 @@ import { QrCode, Maximize2 } from "lucide-react";
 
 /**
  * Renders the EXACT same QR the AttendESP firmware shows on its OLED.
- * Firmware encodes:
- *   base64( JSON.stringify({ t:"qr_static", sid, did, cc, tk }) )
- * where tk = `${sid}:${did}:${cc}`.
- *
- * Rendering only — no QR generation logic, just an image of the known
- * static payload. Lecturer projects this so students can scan from the
- * back of the hall.
+ * Firmware encodes a plain text string: `ATTEND:<DEVICE_ID>` (e.g.
+ * `ATTEND:ESP32-LT101`). The student's app scans this text, finds the
+ * matching `AttendESP_<DEVICE_ID>` BLE peripheral, and writes its check-in
+ * payload there. No base64, no JSON wrapping.
  */
 export function EspQrPanel({
-  scheduleId,
   deviceId,
   courseCode,
 }: {
-  scheduleId: string;
+  scheduleId?: string;
   deviceId: string;
-  courseCode: string;
+  courseCode?: string;
 }) {
   const [fullScreen, setFullScreen] = useState(false);
-
-  const payloadB64 = useMemo(() => {
-    const obj = {
-      t: "qr_static",
-      sid: scheduleId,
-      did: deviceId,
-      cc: courseCode,
-      tk: `${scheduleId}:${deviceId}:${courseCode}`,
-    };
-    return btoa(JSON.stringify(obj));
-  }, [scheduleId, deviceId, courseCode]);
+  const payload = useMemo(() => `ATTEND:${deviceId || "ESP32-LT101"}`, [deviceId]);
 
   return (
     <>
@@ -52,54 +38,44 @@ export function EspQrPanel({
             </Button>
           </div>
           <p className="text-xs text-muted-foreground">
-            Identical payload to the QR shown on the AttendESP OLED.
+            Identical text to the QR shown on the AttendESP OLED.
           </p>
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-3">
           <div className="rounded-xl bg-white p-4 shadow-inner">
             <QRCodeSVG
-              value={payloadB64}
-              size={208}
+              value={payload}
+              size={224}
               level="M"
               includeMargin={false}
               bgColor="#ffffff"
               fgColor="#0f172a"
             />
           </div>
-          <div className="grid grid-cols-3 gap-2 w-full text-[11px]">
-            <Badge variant="outline" className="font-mono whitespace-normal break-all justify-center">
-              did: {deviceId}
-            </Badge>
-            <Badge variant="outline" className="font-mono whitespace-normal break-all justify-center">
-              cc: {courseCode}
-            </Badge>
-            <Badge variant="outline" className="font-mono whitespace-normal break-all justify-center">
-              sid: {scheduleId}
-            </Badge>
-          </div>
+          <Badge variant="outline" className="font-mono text-xs">{payload}</Badge>
+          {courseCode && (
+            <div className="text-xs text-muted-foreground">{courseCode}</div>
+          )}
         </CardContent>
       </Card>
 
       <Dialog open={fullScreen} onOpenChange={setFullScreen}>
         <DialogContent className="max-w-[100vw] sm:max-w-3xl p-6 sm:p-10">
           <DialogTitle className="text-center text-xl">
-            {courseCode} — scan to check in
+            {courseCode ? `${courseCode} — scan to check in` : "Scan to check in"}
           </DialogTitle>
           <div className="flex flex-col items-center gap-4 py-2">
             <div className="rounded-2xl bg-white p-6 shadow-xl">
               <QRCodeSVG
-                value={payloadB64}
-                size={460}
+                value={payload}
+                size={520}
                 level="M"
                 includeMargin={false}
                 bgColor="#ffffff"
                 fgColor="#0f172a"
               />
             </div>
-            <div className="text-sm text-muted-foreground text-center">
-              Device <span className="font-mono">{deviceId}</span> · Schedule{" "}
-              <span className="font-mono">{scheduleId}</span>
-            </div>
+            <div className="font-mono text-sm">{payload}</div>
           </div>
         </DialogContent>
       </Dialog>
