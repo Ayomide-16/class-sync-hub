@@ -356,3 +356,63 @@ function ForcePasswordModal({ matric, onDone }: { matric: string; onDone: () => 
     </Dialog>
   );
 }
+
+function CheckInCard({ session }: { session: StudentSession }) {
+  const qc = useQueryClient();
+  const [busy, setBusy] = useState(false);
+
+  async function onSuccess(info: BleCheckinSuccess) {
+    setBusy(true);
+    const last = getLastCheckinStudent();
+    const previous = last && last !== session.matric_number ? last : null;
+    try {
+      const { data, error } = await supabase.rpc("aeirg_record_ble_attendance" as any, {
+        _matric: session.matric_number,
+        _ble_device: info.deviceName,
+        _browser_token: getBrowserToken(),
+        _previous_student: previous,
+        _source: "aeirg",
+      } as any);
+      if (error) throw error;
+      const res = (data ?? {}) as { ok?: boolean; already_recorded?: boolean; error?: string };
+      if (!res.ok) throw new Error(res.error || "Failed to record attendance");
+      setLastCheckinStudent(session.matric_number);
+      if (res.already_recorded) {
+        toast.info("Your attendance for today has already been recorded.");
+      } else {
+        toast.success("Attendance marked for today.");
+      }
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["aeirg", "me-attendance", session.matric_number] }),
+        qc.invalidateQueries({ queryKey: ["aeirg", "all-attendance-min"] }),
+      ]);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to record attendance");
+      throw e;
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Card className="border-primary/40">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <ScanLine className="h-4 w-4" /> Mark Attendance
+        </CardTitle>
+        <p className="text-xs text-muted-foreground">
+          Scan the QR on the AEIRG attendance device, then approve the Bluetooth pairing prompt.
+        </p>
+      </CardHeader>
+      <CardContent>
+        <BleCheckinFlow
+          studentId={session.matric_number}
+          onSuccess={onSuccess}
+          startLabel={busy ? "Saving…" : "Mark Attendance"}
+          helperText="Tap to scan the QR code on the AEIRG device. Your phone will pair via Bluetooth to confirm you're physically present."
+        />
+      </CardContent>
+    </Card>
+  );
+}
+
