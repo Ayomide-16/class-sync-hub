@@ -209,6 +209,45 @@ export type Database = {
           },
         ]
       }
+      checkin_flags: {
+        Row: {
+          attempted_student_id: string
+          ble_device_name: string | null
+          browser_token: string
+          dismissed: boolean
+          dismissed_at: string | null
+          first_student_id: string
+          flagged_at: string
+          flagged_date: string | null
+          id: string
+          source: string
+        }
+        Insert: {
+          attempted_student_id: string
+          ble_device_name?: string | null
+          browser_token: string
+          dismissed?: boolean
+          dismissed_at?: string | null
+          first_student_id: string
+          flagged_at?: string
+          flagged_date?: string | null
+          id?: string
+          source?: string
+        }
+        Update: {
+          attempted_student_id?: string
+          ble_device_name?: string | null
+          browser_token?: string
+          dismissed?: boolean
+          dismissed_at?: string | null
+          first_student_id?: string
+          flagged_at?: string
+          flagged_date?: string | null
+          id?: string
+          source?: string
+        }
+        Relationships: []
+      }
       course_enrollments: {
         Row: {
           course_id: string
@@ -395,6 +434,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      aeirg_record_ble_attendance: {
+        Args: {
+          _ble_device?: string
+          _browser_token?: string
+          _matric: string
+          _previous_student?: string
+          _source?: string
+        }
+        Returns: Json
+      }
       aeirg_student_change_password: {
         Args: { _current: string; _matric: string; _new: string }
         Returns: boolean
@@ -436,6 +485,16 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      record_checkin_flag: {
+        Args: {
+          _attempted_student_id: string
+          _ble_device?: string
+          _browser_token: string
+          _first_student_id: string
+          _source?: string
+        }
+        Returns: string
       }
     }
     Enums: {
