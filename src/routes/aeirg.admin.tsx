@@ -18,8 +18,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import {
-  LayoutDashboard, Users, FileSpreadsheet, Inbox, CalendarX, Settings as SettingsIcon, LogOut, Search, Trash2, Pencil, Edit,
+  LayoutDashboard, Users, FileSpreadsheet, Inbox, CalendarX, Settings as SettingsIcon, LogOut, Search, Trash2, Pencil, Edit, ShieldAlert,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import {
   AeirgStudent, AeirgAttendance, AeirgCancelledDay,
   workingDaysBetween, presenceMap, manualMap, cancelledSet,
