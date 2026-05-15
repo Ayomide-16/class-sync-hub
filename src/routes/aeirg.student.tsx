@@ -186,6 +186,7 @@ function Dashboard({ session }: { session: StudentSession }) {
       </TabsList>
 
       <TabsContent value="overview" className="space-y-4">
+        <CheckInCard session={session} />
         <div className="grid grid-cols-3 gap-3">
           <Card><CardContent className="p-4">
             <div className="text-xs text-muted-foreground">Days Present</div>
