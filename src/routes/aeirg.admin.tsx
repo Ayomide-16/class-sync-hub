@@ -205,7 +205,16 @@ function useAdminData() {
       return data as any;
     },
   });
-  return { students, attendance, cancelled, packets, config };
+  const flags = useQuery({
+    queryKey: ["aeirg", "flags"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("checkin_flags" as any)
+        .select("*").eq("dismissed", false).order("flagged_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as any[];
+    },
+  });
+  return { students, attendance, cancelled, packets, config, flags };
 }
 
 function AdminSection({ section, pw }: { section: Section; pw: string }) {
