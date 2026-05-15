@@ -668,6 +668,75 @@ function SettingsSection({ data, call }: { data: ReturnType<typeof useAdminData>
   );
 }
 
+function FlagsSection({ data, call }: { data: ReturnType<typeof useAdminData>; call: (op: string, args?: any) => Promise<any> }) {
+  const flags = data.flags.data ?? [];
+  return (
+    <div className="space-y-4">
+      <h2 className="text-2xl font-bold">Flagged Check-ins</h2>
+      <p className="text-sm text-muted-foreground">
+        Same browser used by different students. Review each one and dismiss or revoke the attendance.
+      </p>
+      <Card><CardContent className="p-0">
+        <table className="w-full text-sm">
+          <thead className="bg-muted">
+            <tr>
+              <th className="text-left px-3 py-2">Date / Time</th>
+              <th className="text-left px-3 py-2">Browser</th>
+              <th className="text-left px-3 py-2">Previous Student</th>
+              <th className="text-left px-3 py-2">Attempted Student</th>
+              <th className="text-left px-3 py-2">Device</th>
+              <th className="text-left px-3 py-2">Source</th>
+              <th className="text-right px-3 py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {flags.map((f: any) => (
+              <tr key={f.id} className="border-b">
+                <td className="px-3 py-2 font-mono text-xs">{new Date(f.flagged_at).toLocaleString()}</td>
+                <td className="px-3 py-2 font-mono text-xs">{String(f.browser_token).slice(0, 8)}…</td>
+                <td className="px-3 py-2 font-mono text-xs">{f.first_student_id}</td>
+                <td className="px-3 py-2 font-mono text-xs">{f.attempted_student_id}</td>
+                <td className="px-3 py-2 text-xs text-muted-foreground">{f.ble_device_name ?? "—"}</td>
+                <td className="px-3 py-2 text-xs">{f.source}</td>
+                <td className="px-3 py-2 text-right space-x-1">
+                  <Button size="sm" variant="outline" onClick={async () => {
+                    await call("dismissFlag", { id: f.id });
+                    toast.success("Dismissed");
+                  }}>Dismiss</Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button size="sm" variant="destructive">Revoke Attendance</Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Revoke attendance?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Removes the attendance record for {f.attempted_student_id} on{" "}
+                          {f.flagged_date ?? new Date(f.flagged_at).toISOString().slice(0, 10)} and dismisses this flag.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={async () => {
+                          await call("revokeFlaggedAttendance", { id: f.id });
+                          toast.success("Attendance revoked");
+                        }}>Revoke</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </td>
+              </tr>
+            ))}
+            {flags.length === 0 && (
+              <tr><td colSpan={7} className="text-center py-6 text-muted-foreground">No flagged check-ins.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </CardContent></Card>
+    </div>
+  );
+}
+
 // Tiny inline Fragment helper to avoid extra imports.
 function Fragment({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
