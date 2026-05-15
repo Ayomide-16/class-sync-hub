@@ -230,6 +230,8 @@ function AdminSection({ section, pw }: { section: Section; pw: string }) {
         qc.invalidateQueries({ queryKey: ["aeirg", "cancelled"] }),
         qc.invalidateQueries({ queryKey: ["aeirg", "packets"] }),
         qc.invalidateQueries({ queryKey: ["aeirg", "config"] }),
+        qc.invalidateQueries({ queryKey: ["aeirg", "flags"] }),
+        qc.invalidateQueries({ queryKey: ["aeirg", "flag-count"] }),
       ]);
       return r;
     } catch (e: any) {
