@@ -6,7 +6,6 @@ import {
   Camera,
   CheckCircle2,
   XCircle,
-  Loader2,
   Bluetooth,
   Send,
 } from "lucide-react";
@@ -311,7 +310,7 @@ export function BleCheckinFlow({
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             {(status.kind === "decoding" || status.kind === "finding" ||
               status.kind === "connecting" || status.kind === "sending" ||
-              status.kind === "waiting") && <Loader2 className="h-4 w-4 animate-spin" />}
+              status.kind === "waiting") && <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />}
             {status.kind === "connecting" && <Bluetooth className="h-4 w-4" />}
             {status.kind === "sending" && <Send className="h-4 w-4" />}
             {stepBadge}

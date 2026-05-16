@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar } from "@/components/ui/calendar";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -84,41 +85,60 @@ function AeirgPublic() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-card">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">AEIRG IT Attendance</h1>
-            <p className="text-sm text-muted-foreground">{new Date(today + "T12:00:00Z").toDateString()}</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link to="/">
-              <Button variant="ghost" size="sm">AttendClass Home</Button>
-            </Link>
-            <Link to="/aeirg/login">
-              <Button variant="outline" size="sm">Login</Button>
-            </Link>
-          </div>
+      <header className="flex h-14 items-center justify-between border-b border-border bg-card px-4 md:px-10">
+        <div>
+          <h1 className="text-lg font-semibold tracking-tight">AEIRG IT Attendance</h1>
+          <p className="text-sm text-[#525252]">{new Date(today + "T12:00:00Z").toDateString()}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link to="/">
+            <Button variant="secondary">AttendClass Home</Button>
+          </Link>
+          <Link to="/aeirg/login">
+            <Button variant="outline">Login</Button>
+          </Link>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-6">
+      <main className="mx-auto max-w-7xl space-y-6 px-4 py-8 md:px-10">
         {loading ? (
-          <p className="text-muted-foreground">Loading…</p>
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-48" />
+              <Skeleton className="h-4 w-72" />
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-[320px] w-full" />
+            </CardContent>
+          </Card>
         ) : !hasData ? (
           <Card>
-            <CardContent className="py-12 text-center text-muted-foreground">
-              No attendance data yet. Once the ESP syncs the first packet for an AEIRG
-              student, this register will populate automatically.
+            <CardContent className="flex flex-col items-center justify-center gap-4 py-16 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-md bg-[#F4F4F5] text-[#A1A1AA]">∅</div>
+              <div>
+                <p className="text-sm text-[#525252]">No attendance recorded yet.</p>
+                <p className="mt-1 text-sm text-[#A1A1AA]">Once the first synced packet arrives, the register will appear here automatically.</p>
+              </div>
+              <Link to="/aeirg/login">
+                <Button>Login</Button>
+              </Link>
             </CardContent>
           </Card>
         ) : (
           <Tabs defaultValue="register" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="register"><FileSpreadsheet className="h-4 w-4 mr-1" />Student Register</TabsTrigger>
-              <TabsTrigger value="daily"><CalIcon className="h-4 w-4 mr-1" />Daily View</TabsTrigger>
-              <TabsTrigger value="student"><Users className="h-4 w-4 mr-1" />Student Detail</TabsTrigger>
+            <TabsList className="h-auto w-full justify-start rounded-none border-b border-border bg-transparent p-0">
+              <TabsTrigger value="register" className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary">
+                <FileSpreadsheet className="mr-1 h-4 w-4" />Student Register
+              </TabsTrigger>
+              <TabsTrigger value="daily" className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary">
+                <CalIcon className="mr-1 h-4 w-4" />Daily View
+              </TabsTrigger>
+              <TabsTrigger value="student" className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary">
+                <Users className="mr-1 h-4 w-4" />Student Detail
+              </TabsTrigger>
             </TabsList>
-            <TabsContent value="register">
+            <TabsContent value="register" className="pt-4">
               <RegisterTab
                 students={sortBySurname(students.data ?? [])}
                 attendance={attendance.data ?? []}
@@ -127,14 +147,14 @@ function AeirgPublic() {
                 today={today}
               />
             </TabsContent>
-            <TabsContent value="daily">
+            <TabsContent value="daily" className="pt-4">
               <DailyTab
                 students={sortBySurname(students.data ?? [])}
                 attendance={attendance.data ?? []}
                 cancelled={cancelled.data ?? []}
               />
             </TabsContent>
-            <TabsContent value="student">
+            <TabsContent value="student" className="pt-4">
               <StudentDetailTab
                 students={sortBySurname(students.data ?? [])}
                 attendance={attendance.data ?? []}
@@ -212,64 +232,64 @@ export function RegisterTab({
   return (
     <Card>
       <CardHeader>
-        <div className="flex flex-wrap items-end gap-3 justify-between">
+        <div className="flex flex-wrap items-end justify-between gap-3">
           <div className="flex flex-wrap items-end gap-3">
             <div>
-              <label className="text-xs text-muted-foreground">From</label>
+              <label className="mb-1 block text-xs font-medium text-[#525252]">From</label>
               <Input type="date" value={from} min={startDate} max={to} onChange={(e) => setFrom(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground">To</label>
+              <label className="mb-1 block text-xs font-medium text-[#525252]">To</label>
               <Input type="date" value={to} min={from} max={today} onChange={(e) => setTo(e.target.value)} />
             </div>
           </div>
           <div className="flex gap-2">
-            <Button size="sm" variant="outline" onClick={exportCsv}><Download className="h-4 w-4 mr-1" />CSV</Button>
-            <Button size="sm" onClick={exportXlsx}><Download className="h-4 w-4 mr-1" />XLSX</Button>
+            <Button variant="outline" onClick={exportCsv}><Download className="mr-1 h-4 w-4" />CSV</Button>
+            <Button onClick={exportXlsx}><Download className="mr-1 h-4 w-4" />XLSX</Button>
           </div>
         </div>
       </CardHeader>
       <CardContent className="p-0">
-        <div className="overflow-auto max-h-[70vh] relative border-t">
-          <table className="text-sm border-collapse">
-            <thead className="bg-muted sticky top-0 z-20">
+        <div className="relative max-h-[70vh] overflow-auto border-t border-border">
+          <table className="border-collapse text-sm">
+            <thead className="sticky top-0 z-20 bg-[#F4F4F5]">
               <tr>
-                <th className="sticky left-0 bg-muted z-30 px-2 py-2 text-left border-r w-12">S/N</th>
-                <th className="sticky left-12 bg-muted z-30 px-2 py-2 text-left border-r min-w-[200px]">Student</th>
+                <th className="sticky left-0 z-30 w-12 border-r border-border bg-[#F4F4F5] px-4 py-3 text-left">S/N</th>
+                <th className="sticky left-12 z-30 min-w-[200px] border-r border-border bg-[#F4F4F5] px-4 py-3 text-left">Student</th>
                 {days.map((d) => (
-                  <th key={d} className={`px-2 py-2 text-xs whitespace-nowrap border-r ${cset.has(d) ? "text-amber-600" : ""}`}>
+                  <th key={d} className={`border-r border-border px-4 py-3 whitespace-nowrap text-center text-xs ${cset.has(d) ? "text-[#D97706]" : "text-[#525252]"}`}>
                     {cset.has(d) ? "—" : d.slice(5)}
-                    <div className="text-[10px] font-normal opacity-60">{cset.has(d) ? "Holiday" : dayName(d)}</div>
+                    <div className="text-[10px] font-normal text-[#A1A1AA]">{cset.has(d) ? "Holiday" : dayName(d)}</div>
                   </th>
                 ))}
-                <th className="sticky right-[160px] bg-muted z-30 px-2 py-2 border-l">Present</th>
-                <th className="sticky right-[80px] bg-muted z-30 px-2 py-2">Absent</th>
-                <th className="sticky right-0 bg-muted z-30 px-2 py-2 border-l">%</th>
+                <th className="sticky right-[160px] z-30 border-l border-border bg-[#F4F4F5] px-4 py-3">Present</th>
+                <th className="sticky right-[80px] z-30 bg-[#F4F4F5] px-4 py-3">Absent</th>
+                <th className="sticky right-0 z-30 border-l border-border bg-[#F4F4F5] px-4 py-3">%</th>
               </tr>
             </thead>
             <tbody>
               {students.map((s, i) => {
                 const stats = attendanceStats(s.matric_number, s.added_at, allDays, presence, cset);
                 return (
-                  <tr key={s.id} className="hover:bg-muted/30">
-                    <td className="sticky left-0 bg-card z-10 px-2 py-1.5 border-r border-b text-center">{i + 1}</td>
-                    <td className="sticky left-12 bg-card z-10 px-2 py-1.5 border-r border-b">
+                  <tr key={s.id} className="hover:bg-[#EFF6FF]">
+                    <td className="sticky left-0 z-10 border-r border-b border-border bg-card px-4 py-3 text-center">{i + 1}</td>
+                    <td className="sticky left-12 z-10 border-r border-b border-border bg-card px-4 py-3">
                       <div className="font-medium leading-tight">{s.name}</div>
-                      <div className="text-xs text-muted-foreground">{s.matric_number}</div>
+                      <div className="text-xs text-[#A1A1AA]">{s.matric_number}</div>
                     </td>
                     {days.map((d) => {
                       const status = cellStatus(s.matric_number, d, presence, cset);
                       const isManual = manual?.get(s.matric_number)?.get(d);
                       const cellClass =
                         status === "holiday"
-                          ? "text-muted-foreground"
+                          ? "bg-[#F4F4F5] text-[#71717A]"
                           : status === "present"
-                          ? "text-emerald-600 font-semibold"
-                          : "text-rose-500";
+                          ? "bg-[#F0FDF4] text-[#16A34A]"
+                          : "bg-[#FEF2F2] text-[#DC2626]";
                       return (
                         <td
                           key={d}
-                          className={`px-2 py-1.5 text-center border-r border-b relative ${cellClass} ${editable && status !== "holiday" ? "cursor-pointer hover:bg-accent" : ""}`}
+                          className={`relative h-10 w-10 border-r border-b border-border px-0 text-center font-mono text-[11px] font-semibold ${cellClass} ${editable && status !== "holiday" ? "cursor-pointer hover:opacity-80" : ""}`}
                           onClick={() => {
                             if (!editable || status === "holiday") return;
                             onToggle?.(s.matric_number, d, status === "present");
@@ -277,14 +297,14 @@ export function RegisterTab({
                         >
                           {status === "holiday" ? "—" : status === "present" ? "✓" : "✗"}
                           {isManual && status === "present" && (
-                            <span className="absolute top-0.5 right-0.5 h-1.5 w-1.5 rounded-full bg-blue-500" />
+                            <span className="absolute right-0.5 top-0.5 h-1.5 w-1.5 rounded-full bg-[#1C4ED8]" />
                           )}
                         </td>
                       );
                     })}
-                    <td className="sticky right-[160px] bg-card z-10 px-2 py-1.5 text-center border-l border-b">{stats.present}</td>
-                    <td className="sticky right-[80px] bg-card z-10 px-2 py-1.5 text-center border-b">{stats.absent}</td>
-                    <td className="sticky right-0 bg-card z-10 px-2 py-1.5 text-center border-l border-b font-semibold">{stats.pct}%</td>
+                    <td className="sticky right-[160px] z-10 border-l border-b border-border bg-card px-4 py-3 text-center font-mono">{stats.present}</td>
+                    <td className="sticky right-[80px] z-10 border-b border-border bg-card px-4 py-3 text-center font-mono">{stats.absent}</td>
+                    <td className="sticky right-0 z-10 border-l border-b border-border bg-card px-4 py-3 text-center font-mono font-semibold">{stats.pct}%</td>
                   </tr>
                 );
               })}
@@ -404,7 +424,7 @@ function StudentDetailTab({
     <div className="space-y-4">
       <div className="flex flex-wrap items-end gap-3 justify-between">
         <div className="min-w-[280px]">
-          <label className="text-xs text-muted-foreground">Student</label>
+          <label className="mb-1 block text-xs font-medium text-[#525252]">Student</label>
           <Select value={matric} onValueChange={setMatric}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
@@ -416,23 +436,23 @@ function StudentDetailTab({
             </SelectContent>
           </Select>
         </div>
-        <Button size="sm" variant="outline" onClick={exportCsv}><Download className="h-4 w-4 mr-1" />CSV</Button>
+        <Button variant="outline" onClick={exportCsv}><Download className="mr-1 h-4 w-4" />CSV</Button>
       </div>
 
       <div className="grid grid-cols-3 gap-3">
-        <Card><CardContent className="p-4"><div className="text-xs text-muted-foreground">Total Present</div><div className="text-2xl font-bold text-emerald-600">{stats.present}</div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="text-xs text-muted-foreground">Total Absent</div><div className="text-2xl font-bold text-rose-500">{stats.absent}</div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="text-xs text-muted-foreground">Attendance %</div><div className="text-2xl font-bold">{stats.pct}%</div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="text-xs uppercase tracking-[0.05em] text-[#525252]">Total Present</div><div className="font-mono text-2xl font-semibold text-[#16A34A]">{stats.present}</div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="text-xs uppercase tracking-[0.05em] text-[#525252]">Total Absent</div><div className="font-mono text-2xl font-semibold text-[#DC2626]">{stats.absent}</div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="text-xs uppercase tracking-[0.05em] text-[#525252]">Attendance %</div><div className="font-mono text-2xl font-semibold">{stats.pct}%</div></CardContent></Card>
       </div>
 
       <Card>
         <CardContent className="p-4">
-          <div className="text-sm font-medium mb-2">Attendance pattern</div>
+          <div className="mb-2 text-sm font-medium">Attendance pattern</div>
           <div className="flex flex-wrap gap-1">
             {days.map((d) => {
               const status = cset.has(d) ? "holiday" : presence.get(student.matric_number)?.has(d) ? "present" : "absent";
-              const cls = status === "present" ? "bg-emerald-500" : status === "absent" ? "bg-rose-400" : "bg-muted";
-              return <div key={d} title={`${d} — ${status}`} className={`h-4 w-4 rounded-sm ${cls}`} />;
+              const cls = status === "present" ? "bg-[#F0FDF4] text-[#16A34A]" : status === "absent" ? "bg-[#FEF2F2] text-[#DC2626]" : "bg-[#F4F4F5] text-[#71717A]";
+              return <div key={d} title={`${d} — ${status}`} className={`grid h-4 w-4 place-items-center rounded-sm text-[10px] font-semibold ${cls}`}>{status === "present" ? "✓" : status === "absent" ? "✗" : "—"}</div>;
             })}
           </div>
         </CardContent>
@@ -442,22 +462,22 @@ function StudentDetailTab({
         <CardContent className="p-0">
           <div className="overflow-auto max-h-[50vh]">
             <table className="w-full text-sm">
-              <thead className="bg-muted sticky top-0">
+              <thead className="sticky top-0 bg-[#F4F4F5]">
                 <tr>
-                  <th className="text-left px-3 py-2">Date</th>
-                  <th className="text-left px-3 py-2">Day</th>
-                  <th className="text-left px-3 py-2">Status</th>
+                  <th className="px-4 py-3 text-left text-xs uppercase tracking-[0.05em] text-[#525252]">Date</th>
+                  <th className="px-4 py-3 text-left text-xs uppercase tracking-[0.05em] text-[#525252]">Day</th>
+                  <th className="px-4 py-3 text-left text-xs uppercase tracking-[0.05em] text-[#525252]">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {days.map((d) => {
                   const status = cset.has(d) ? "Holiday" : presence.get(student.matric_number)?.has(d) ? "Present" : "Absent";
-                  const cls = status === "Present" ? "text-emerald-600" : status === "Absent" ? "text-rose-500" : "text-muted-foreground";
+                  const cls = status === "Present" ? "text-[#16A34A]" : status === "Absent" ? "text-[#DC2626]" : "text-[#71717A]";
                   return (
-                    <tr key={d} className="border-b">
-                      <td className="px-3 py-1.5">{d}</td>
-                      <td className="px-3 py-1.5">{dayName(d)}</td>
-                      <td className={`px-3 py-1.5 font-medium ${cls}`}>{status}</td>
+                    <tr key={d} className="border-b border-border">
+                      <td className="px-4 py-3 font-mono">{d}</td>
+                      <td className="px-4 py-3 text-[#525252]">{dayName(d)}</td>
+                      <td className={`px-4 py-3 font-mono font-semibold ${cls}`}>{status}</td>
                     </tr>
                   );
                 })}

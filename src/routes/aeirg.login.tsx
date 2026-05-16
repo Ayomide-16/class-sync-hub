@@ -61,43 +61,45 @@ function AeirgLogin() {
   }
 
   return (
-    <div className="min-h-screen grid place-items-center bg-gradient-to-br from-primary/10 to-accent/10 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>AEIRG Login</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Students sign in with their matric number. Admin signs in with email.
-          </p>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={submit} className="space-y-4">
-            <div>
-              <Label>Email or Matric Number</Label>
-              <Input
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
-                autoComplete="username"
-                placeholder="2022186871ET or admin@email"
-              />
-            </div>
-            <div>
-              <Label>Password</Label>
-              <Input
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                type="password"
-                autoComplete="current-password"
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={busy}>
-              {busy ? "Signing in…" : "Sign In"}
-            </Button>
-            <Link to="/aeirg" className="block text-center text-xs text-muted-foreground hover:underline">
-              ← Back to public register
-            </Link>
-          </form>
-        </CardContent>
-      </Card>
+    <div className="min-h-screen bg-background px-4 py-12 md:py-16">
+      <div className="mx-auto flex min-h-[calc(100vh-6rem)] w-full max-w-[400px] items-center">
+        <Card className="w-full rounded-lg border border-border shadow-[var(--shadow-md)]">
+          <CardHeader className="space-y-2 text-center">
+              <CardTitle className="text-xl font-bold tracking-tight">AEIRG Login</CardTitle>
+              <p className="text-sm text-[#525252]">
+                Students sign in with their matric number.
+              </p>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={submit} className="space-y-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium text-[#525252]">Matric Number</Label>
+                <Input
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  autoComplete="username"
+                  placeholder="2022186871ET"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium text-[#525252]">Password</Label>
+                <Input
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  type="password"
+                  autoComplete="current-password"
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={busy}>
+                {busy ? "Signing in…" : "Sign In"}
+              </Button>
+              <Link to="/aeirg" className="block text-center text-xs font-medium text-primary hover:underline">
+                ← Back to public register
+              </Link>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

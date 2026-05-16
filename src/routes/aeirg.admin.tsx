@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
@@ -77,29 +78,31 @@ function AdminLogin({ onSuccess }: { onSuccess: (pw: string) => void }) {
   }
 
   return (
-    <div className="min-h-screen grid place-items-center bg-gradient-to-br from-primary/10 to-accent/10 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>AEIRG Admin Login</CardTitle>
-          <p className="text-sm text-muted-foreground">Restricted access — admin credentials required.</p>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={submit} className="space-y-4">
-            <div>
-              <Label>Email</Label>
-              <Input value={email} onChange={(e) => setEmail(e.target.value)} type="email" autoComplete="email" />
-            </div>
-            <div>
-              <Label>Password</Label>
-              <Input value={password} onChange={(e) => setPassword(e.target.value)} type="password" autoComplete="current-password" />
-            </div>
-            <Button type="submit" className="w-full" disabled={busy}>{busy ? "Checking…" : "Sign In"}</Button>
-            <Link to="/aeirg" className="block text-center text-xs text-muted-foreground hover:underline">
-              ← Back to public register
-            </Link>
-          </form>
-        </CardContent>
-      </Card>
+    <div className="min-h-screen bg-background px-4 py-12 md:py-16">
+      <div className="mx-auto flex min-h-[calc(100vh-6rem)] w-full max-w-[400px] items-center">
+        <Card className="w-full rounded-lg border border-border shadow-[var(--shadow-md)]">
+          <CardHeader className="space-y-2 text-center">
+            <CardTitle className="text-xl font-bold tracking-tight">AEIRG Admin Login</CardTitle>
+            <p className="text-sm text-[#525252]">Restricted access — admin credentials required.</p>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={submit} className="space-y-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium text-[#525252]">Email</Label>
+                <Input value={email} onChange={(e) => setEmail(e.target.value)} type="email" autoComplete="email" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium text-[#525252]">Password</Label>
+                <Input value={password} onChange={(e) => setPassword(e.target.value)} type="password" autoComplete="current-password" />
+              </div>
+              <Button type="submit" className="w-full" disabled={busy}>{busy ? "Checking…" : "Sign In"}</Button>
+              <Link to="/aeirg" className="block text-center text-xs font-medium text-primary hover:underline">
+                ← Back to public register
+              </Link>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
@@ -240,7 +243,20 @@ function AdminSection({ section, pw }: { section: Section; pw: string }) {
     }
   };
 
-  if (data.students.isLoading) return <p className="text-muted-foreground">Loading…</p>;
+  if (data.students.isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-6 w-40" />
+          <Skeleton className="h-4 w-72" />
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-[280px] w-full" />
+        </CardContent>
+      </Card>
+    );
+  }
 
   switch (section) {
     case "dashboard": return <Dashboard data={data} />;

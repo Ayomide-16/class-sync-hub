@@ -297,10 +297,10 @@ function LecturerCourses() {
 
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={() => handleExport("csv")} disabled={!exportRows.length || !!downloadKind}>
-            {downloadKind === "csv" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} Download CSV
+            {downloadKind === "csv" ? "Downloading CSV…" : <><Download className="h-4 w-4" /> Download CSV</>}
           </Button>
           <Button onClick={() => handleExport("xlsx")} disabled={!exportRows.length || !!downloadKind}>
-            {downloadKind === "xlsx" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} Download XLSX
+            {downloadKind === "xlsx" ? "Downloading XLSX…" : <><Download className="h-4 w-4" /> Download XLSX</>}
           </Button>
         </div>
       </div>

@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 import { CheckCircle2, Clock, BookOpen } from "lucide-react";
 import { formatLoggedAt } from "@/lib/time";
 import { StudentQrScanner } from "@/components/StudentQrScanner";
@@ -117,7 +118,11 @@ function StudentDashboard() {
         </CardHeader>
         <CardContent>
           {attendance.isLoading ? (
-            <p className="text-sm text-muted-foreground">Loading…</p>
+            <div className="space-y-3">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-3/4" />
+            </div>
           ) : (attendance.data?.length ?? 0) === 0 ? (
             <p className="text-sm text-muted-foreground">
               No attendance recorded yet. Check in at the AttendESP device in class.

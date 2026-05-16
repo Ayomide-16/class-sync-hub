@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { Download, LogOut, Settings as SettingsIcon, LayoutDashboard, ScanLine } from "lucide-react";
 import {
@@ -172,7 +173,17 @@ function Dashboard({ session }: { session: StudentSession }) {
   }
 
   if (studentQ.isLoading || attendanceQ.isLoading || cancelledQ.isLoading) {
-    return <p className="text-muted-foreground">Loading…</p>;
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-14 w-full" />
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+        </div>
+        <Skeleton className="h-80 w-full" />
+      </div>
+    );
   }
   if (!student) {
     return <p className="text-rose-500">Student record not found.</p>;

@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase-client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Radio, MapPin, Smartphone } from "lucide-react";
 import { DAYS, formatLoggedAt } from "@/lib/time";
 import { EspQrPanel } from "@/components/EspQrPanel";
@@ -120,7 +121,11 @@ function LecturerDashboard() {
         </CardHeader>
         <CardContent>
           {active.isLoading ? (
-            <p className="text-sm text-muted-foreground">Checking schedule…</p>
+            <div className="space-y-3">
+              <Skeleton className="h-8 w-56" />
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-3/4" />
+            </div>
           ) : active.data ? (
             <div className="space-y-3">
               <div className="flex flex-wrap gap-4 text-sm">
@@ -151,7 +156,11 @@ function LecturerDashboard() {
                     Live attendance ({liveRoster.data?.length ?? 0})
                   </p>
                   {liveRoster.isLoading ? (
-                    <p className="text-xs text-muted-foreground">Loading roster…</p>
+                    <div className="space-y-2">
+                      <Skeleton className="h-8 w-full" />
+                      <Skeleton className="h-8 w-full" />
+                      <Skeleton className="h-8 w-3/4" />
+                    </div>
                   ) : (liveRoster.data?.length ?? 0) === 0 ? (
                     <p className="text-xs text-muted-foreground">
                       Class is in session — no one has checked in yet.
@@ -203,7 +212,11 @@ function LecturerDashboard() {
         </CardHeader>
         <CardContent>
           {pastAttendance.isLoading ? (
-            <p className="text-sm text-muted-foreground">Loading…</p>
+            <div className="space-y-3">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-2/3" />
+            </div>
           ) : (pastAttendance.data?.length ?? 0) === 0 ? (
             <p className="text-sm text-muted-foreground">No attendance records yet.</p>
           ) : (

@@ -38,19 +38,19 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
   const currentPath = router.state.location.pathname;
 
   return (
-    <div className="min-h-screen flex bg-background text-foreground">
-      <aside className="hidden md:flex w-60 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground shadow-[inset_-1px_0_0_rgba(255,255,255,0.06)]">
-        <div className="p-5 border-b border-sidebar-border flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/12 text-white shadow-sm ring-1 ring-white/10">
+    <div className="min-h-screen bg-background text-foreground md:pl-[240px]">
+      <aside className="fixed inset-y-0 left-0 hidden w-[240px] flex-col border-r border-border bg-card text-foreground md:flex">
+        <div className="flex items-center gap-3 border-b border-border px-4 py-4">
+          <div className="flex h-9 w-9 items-center justify-center rounded-md border border-border bg-[#EFF6FF] text-primary">
             <GraduationCap className="h-5 w-5" />
           </div>
           <div>
-            <div className="font-semibold leading-tight text-white">AttendClass</div>
-            <div className="text-xs text-white/70">FUT Minna</div>
+            <div className="text-[15px] font-semibold leading-tight text-foreground">AttendClass</div>
+            <div className="text-[13px] text-[#525252]">FUT Minna</div>
           </div>
         </div>
 
-        <nav className="p-3 space-y-1 flex-1">
+        <nav className="flex-1 space-y-1 px-3 py-4">
           {items.map((it) => {
             const Icon = it.icon;
             const active = currentPath === it.to;
@@ -59,10 +59,10 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
               <Link
                 key={it.to}
                 to={it.to}
-                className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm transition ${
+                className={`flex h-9 items-center gap-2 rounded-md border-l-2 px-3 text-[13px] transition ${
                   active
-                    ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
-                    : "text-sidebar-foreground/85 hover:bg-white/10 hover:text-white"
+                    ? "border-primary bg-[#EFF6FF] text-primary"
+                    : "border-transparent text-[#525252] hover:bg-[#F4F4F5] hover:text-foreground"
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -72,38 +72,36 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
           })}
         </nav>
 
-        <div className="p-3 border-t border-sidebar-border space-y-2">
-          <div className="text-xs text-sidebar-foreground/90">
-            <div className="font-medium truncate text-white">{user?.full_name}</div>
-            <div className="text-sidebar-foreground/70 truncate">{user?.matric_number}</div>
-            <div className="text-sidebar-foreground/70 capitalize">
+        <div className="space-y-3 border-t border-border px-4 py-4">
+          <div className="text-[13px]">
+            <div className="truncate font-medium text-foreground">{user?.full_name}</div>
+            <div className="truncate text-[#A1A1AA]">{user?.matric_number}</div>
+            <div className="capitalize text-[#A1A1AA]">
               {user?.role?.replace("_", " ")}
             </div>
           </div>
           <Button
             variant="outline"
-            size="sm"
-            className="w-full border-white/15 bg-white/10 text-white hover:bg-white/15 hover:text-white"
+            className="w-full justify-start"
             onClick={async () => {
               await signOut();
               navigate({ to: "/login" });
             }}
           >
-            <LogOut className="h-4 w-4 mr-2" /> Sign out
+            <LogOut className="mr-2 h-4 w-4" /> Sign out
           </Button>
         </div>
       </aside>
 
-      <div className="flex-1 flex flex-col min-w-0">
-        <header className="md:hidden flex items-center justify-between px-4 py-3 border-b border-sidebar-border bg-sidebar text-sidebar-foreground">
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="flex h-14 items-center justify-between border-b border-border bg-card px-4 md:px-10">
           <div className="flex items-center gap-2">
-            <GraduationCap className="h-5 w-5 text-white" />
-            <span className="font-semibold text-white">AttendClass</span>
+            <GraduationCap className="h-5 w-5 text-primary md:hidden" />
+            <span className="text-[15px] font-semibold text-foreground">AttendClass</span>
           </div>
           <Button
             variant="ghost"
-            size="sm"
-            className="text-white hover:bg-white/10 hover:text-white"
+            className="md:hidden"
             onClick={async () => {
               await signOut();
               navigate({ to: "/login" });
@@ -113,7 +111,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
           </Button>
         </header>
 
-        <main className="flex-1 p-4 md:p-8 max-w-6xl w-full mx-auto">{children}</main>
+        <main className="flex-1 px-4 py-8 md:px-10 md:py-8">{children}</main>
       </div>
     </div>
   );

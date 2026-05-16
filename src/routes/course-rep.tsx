@@ -14,6 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { toast } from "sonner";
 import { DAYS } from "@/lib/time";
 import { BookOpen, Users, Calendar, Plus } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/course-rep")({
   component: CourseRepRoute,
@@ -143,7 +144,11 @@ function CourseRepDashboard() {
         </CardHeader>
         <CardContent>
           {courses.isLoading ? (
-            <p className="text-sm text-muted-foreground">Loading…</p>
+            <div className="space-y-3">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-3/4" />
+            </div>
           ) : (
             <div className="space-y-3">
               {(courses.data ?? []).map((c: any) => (
