@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +9,14 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Download, LogOut, Settings as SettingsIcon, LayoutDashboard } from "lucide-react";
+import { Download, LogOut, Settings as SettingsIcon, LayoutDashboard, ScanLine } from "lucide-react";
+import {
+  BleCheckinFlow,
+  getBrowserToken,
+  getLastCheckinStudent,
+  setLastCheckinStudent,
+  type BleCheckinSuccess,
+} from "@/components/BleCheckinFlow";
 import {
   AeirgAttendance,
   AeirgCancelledDay,
