@@ -653,24 +653,108 @@ function PacketsSection({ data, call }: { data: ReturnType<typeof useAdminData>;
 
 function CancelledSection({ data, call }: { data: ReturnType<typeof useAdminData>; call: (op: string, args?: any) => Promise<any> }) {
   const cancelled = (data.cancelled.data ?? []).slice().sort((a, b) => a.cancelled_date.localeCompare(b.cancelled_date));
+  const [mode, setMode] = useState<"single" | "range" | "multiple">("single");
   const [date, setDate] = useState("");
+  const [rangeStart, setRangeStart] = useState("");
+  const [rangeEnd, setRangeEnd] = useState("");
+  const [multiInput, setMultiInput] = useState("");
+  const [multiDates, setMultiDates] = useState<string[]>([]);
+  const [includeWeekends, setIncludeWeekends] = useState(false);
   const [reason, setReason] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  function expandRange(start: string, end: string, includeWE: boolean): string[] {
+    if (!start || !end || start > end) return [];
+    const out: string[] = [];
+    const s = new Date(start + "T00:00:00Z");
+    const e = new Date(end + "T00:00:00Z");
+    for (let d = new Date(s); d <= e; d.setUTCDate(d.getUTCDate() + 1)) {
+      const dow = d.getUTCDay();
+      if (!includeWE && (dow === 0 || dow === 6)) continue;
+      out.push(d.toISOString().slice(0, 10));
+    }
+    return out;
+  }
+
+  function addMulti() {
+    const v = multiInput.trim();
+    if (!v) return;
+    if (!multiDates.includes(v)) setMultiDates([...multiDates, v].sort());
+    setMultiInput("");
+  }
+
+  async function submit() {
+    let dates: string[] = [];
+    if (mode === "single") dates = date ? [date] : [];
+    else if (mode === "range") dates = expandRange(rangeStart, rangeEnd, includeWeekends);
+    else dates = multiDates;
+    if (dates.length === 0) { toast.error("Pick at least one date"); return; }
+    setBusy(true);
+    try {
+      let ok = 0;
+      for (const d of dates) {
+        try { await call("cancelDay", { cancelled_date: d, reason: reason || null }); ok++; } catch {}
+      }
+      toast.success(`Cancelled ${ok} day${ok === 1 ? "" : "s"}`);
+      setDate(""); setRangeStart(""); setRangeEnd(""); setMultiDates([]); setMultiInput(""); setReason("");
+    } finally { setBusy(false); }
+  }
+
+  const preview = mode === "range" ? expandRange(rangeStart, rangeEnd, includeWeekends) : mode === "multiple" ? multiDates : (date ? [date] : []);
 
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold">Cancelled Days</h2>
-      <Card><CardHeader><CardTitle className="text-base">Cancel a day</CardTitle></CardHeader>
-        <CardContent className="flex flex-wrap items-end gap-3">
-          <div><Label>Date</Label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></div>
-          <div className="flex-1 min-w-[200px]"><Label>Reason (optional)</Label><Input value={reason} onChange={(e) => setReason(e.target.value)} /></div>
-          <Button onClick={async () => {
-            if (!date) return;
-            await call("cancelDay", { cancelled_date: date, reason: reason || null });
-            toast.success("Day cancelled");
-            setDate(""); setReason("");
-          }}>Cancel Day</Button>
+      <Card><CardHeader><CardTitle className="text-base">Cancel days</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex gap-2">
+            {(["single", "range", "multiple"] as const).map((m) => (
+              <Button key={m} size="sm" variant={mode === m ? "default" : "outline"} onClick={() => setMode(m)}>
+                {m === "single" ? "Single" : m === "range" ? "Range" : "Multiple"}
+              </Button>
+            ))}
+          </div>
+          <div className="flex flex-wrap items-end gap-3">
+            {mode === "single" && (
+              <div><Label>Date</Label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></div>
+            )}
+            {mode === "range" && (
+              <>
+                <div><Label>From</Label><Input type="date" value={rangeStart} onChange={(e) => setRangeStart(e.target.value)} /></div>
+                <div><Label>To</Label><Input type="date" value={rangeEnd} onChange={(e) => setRangeEnd(e.target.value)} /></div>
+                <label className="flex items-center gap-2 text-sm pb-2">
+                  <input type="checkbox" checked={includeWeekends} onChange={(e) => setIncludeWeekends(e.target.checked)} />
+                  Include weekends
+                </label>
+              </>
+            )}
+            {mode === "multiple" && (
+              <div className="flex items-end gap-2">
+                <div><Label>Add date</Label><Input type="date" value={multiInput} onChange={(e) => setMultiInput(e.target.value)} /></div>
+                <Button type="button" variant="outline" onClick={addMulti}>Add</Button>
+              </div>
+            )}
+            <div className="flex-1 min-w-[200px]"><Label>Reason (optional)</Label><Input value={reason} onChange={(e) => setReason(e.target.value)} /></div>
+            <Button disabled={busy || preview.length === 0} onClick={submit}>
+              {busy ? "Cancelling…" : `Cancel ${preview.length || ""} day${preview.length === 1 ? "" : "s"}`.trim()}
+            </Button>
+          </div>
+          {mode === "multiple" && multiDates.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {multiDates.map((d) => (
+                <span key={d} className="inline-flex items-center gap-1 bg-muted px-2 py-1 rounded text-xs">
+                  {d}
+                  <button onClick={() => setMultiDates(multiDates.filter((x) => x !== d))} className="text-muted-foreground hover:text-foreground">×</button>
+                </span>
+              ))}
+            </div>
+          )}
+          {mode === "range" && preview.length > 0 && (
+            <div className="text-xs text-muted-foreground">Will cancel {preview.length} day{preview.length === 1 ? "" : "s"}: {preview[0]} → {preview[preview.length - 1]}</div>
+          )}
         </CardContent>
       </Card>
+
 
       <Card><CardContent className="p-0">
         <table className="w-full text-sm">
