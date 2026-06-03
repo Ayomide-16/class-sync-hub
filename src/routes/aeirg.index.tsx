@@ -264,6 +264,7 @@ export function RegisterTab({
                     {days.map((d) => {
                       const status = cellStatus(s.matric_number, d, presence, cset);
                       const isManual = manual?.get(s.matric_number)?.get(d);
+                      const isToday = d === today;
                       const cellClass =
                         status === "holiday"
                           ? "text-muted-foreground"
@@ -273,7 +274,7 @@ export function RegisterTab({
                       return (
                         <td
                           key={d}
-                          className={`px-2 py-1.5 text-center border-r border-b relative ${cellClass} ${editable && status !== "holiday" ? "cursor-pointer hover:bg-accent" : ""}`}
+                          className={`px-2 py-1.5 text-center border-r border-b relative ${cellClass} ${isToday ? "bg-primary/5" : ""} ${editable && status !== "holiday" ? "cursor-pointer hover:bg-accent" : ""}`}
                           onClick={() => {
                             if (!editable || status === "holiday") return;
                             onToggle?.(s.matric_number, d, status === "present");
@@ -286,6 +287,7 @@ export function RegisterTab({
                         </td>
                       );
                     })}
+                    <td aria-hidden className="p-0 border-0" style={{ minWidth: 240, width: 240 }} />
                     <td className="sticky right-[160px] bg-card z-10 px-2 py-1.5 text-center border-l border-b">{stats.present}</td>
                     <td className="sticky right-[80px] bg-card z-10 px-2 py-1.5 text-center border-b">{stats.absent}</td>
                     <td className="sticky right-0 bg-card z-10 px-2 py-1.5 text-center border-l border-b font-semibold">{stats.pct}%</td>
