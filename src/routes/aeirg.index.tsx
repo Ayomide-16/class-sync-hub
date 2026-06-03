@@ -236,12 +236,16 @@ export function RegisterTab({
               <tr>
                 <th className="sticky left-0 bg-muted z-30 px-2 py-2 text-left border-r w-12">S/N</th>
                 <th className="sticky left-12 bg-muted z-30 px-2 py-2 text-left border-r min-w-[200px]">Student</th>
-                {days.map((d) => (
-                  <th key={d} className={`px-2 py-2 text-xs whitespace-nowrap border-r ${cset.has(d) ? "text-amber-600" : ""}`}>
-                    {cset.has(d) ? "—" : d.slice(5)}
-                    <div className="text-[10px] font-normal opacity-60">{cset.has(d) ? "Holiday" : dayName(d)}</div>
-                  </th>
-                ))}
+                {days.map((d) => {
+                  const isToday = d === today;
+                  return (
+                    <th key={d} className={`px-2 py-2 text-xs whitespace-nowrap border-r ${cset.has(d) ? "text-amber-600" : ""} ${isToday ? "bg-primary/15 text-primary" : ""}`}>
+                      {cset.has(d) ? "—" : d.slice(5)}
+                      <div className="text-[10px] font-normal opacity-60">{cset.has(d) ? "Holiday" : isToday ? "Today" : dayName(d)}</div>
+                    </th>
+                  );
+                })}
+                <th aria-hidden className="p-0 border-0" style={{ minWidth: 240, width: 240 }} />
                 <th className="sticky right-[160px] bg-muted z-30 px-2 py-2 border-l">Present</th>
                 <th className="sticky right-[80px] bg-muted z-30 px-2 py-2">Absent</th>
                 <th className="sticky right-0 bg-muted z-30 px-2 py-2 border-l">%</th>
