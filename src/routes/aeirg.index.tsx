@@ -236,12 +236,16 @@ export function RegisterTab({
               <tr>
                 <th className="sticky left-0 bg-muted z-30 px-2 py-2 text-left border-r w-12">S/N</th>
                 <th className="sticky left-12 bg-muted z-30 px-2 py-2 text-left border-r min-w-[200px]">Student</th>
-                {days.map((d) => (
-                  <th key={d} className={`px-2 py-2 text-xs whitespace-nowrap border-r ${cset.has(d) ? "text-amber-600" : ""}`}>
-                    {cset.has(d) ? "—" : d.slice(5)}
-                    <div className="text-[10px] font-normal opacity-60">{cset.has(d) ? "Holiday" : dayName(d)}</div>
-                  </th>
-                ))}
+                {days.map((d) => {
+                  const isToday = d === today;
+                  return (
+                    <th key={d} className={`px-2 py-2 text-xs whitespace-nowrap border-r ${cset.has(d) ? "text-amber-600" : ""} ${isToday ? "bg-primary/15 text-primary" : ""}`}>
+                      {cset.has(d) ? "—" : d.slice(5)}
+                      <div className="text-[10px] font-normal opacity-60">{cset.has(d) ? "Holiday" : isToday ? "Today" : dayName(d)}</div>
+                    </th>
+                  );
+                })}
+                <th aria-hidden className="p-0 border-0" style={{ minWidth: 240, width: 240 }} />
                 <th className="sticky right-[160px] bg-muted z-30 px-2 py-2 border-l">Present</th>
                 <th className="sticky right-[80px] bg-muted z-30 px-2 py-2">Absent</th>
                 <th className="sticky right-0 bg-muted z-30 px-2 py-2 border-l">%</th>
@@ -260,6 +264,7 @@ export function RegisterTab({
                     {days.map((d) => {
                       const status = cellStatus(s.matric_number, d, presence, cset);
                       const isManual = manual?.get(s.matric_number)?.get(d);
+                      const isToday = d === today;
                       const cellClass =
                         status === "holiday"
                           ? "text-muted-foreground"
@@ -269,7 +274,7 @@ export function RegisterTab({
                       return (
                         <td
                           key={d}
-                          className={`px-2 py-1.5 text-center border-r border-b relative ${cellClass} ${editable && status !== "holiday" ? "cursor-pointer hover:bg-accent" : ""}`}
+                          className={`px-2 py-1.5 text-center border-r border-b relative ${cellClass} ${isToday ? "bg-primary/5" : ""} ${editable && status !== "holiday" ? "cursor-pointer hover:bg-accent" : ""}`}
                           onClick={() => {
                             if (!editable || status === "holiday") return;
                             onToggle?.(s.matric_number, d, status === "present");
@@ -282,6 +287,7 @@ export function RegisterTab({
                         </td>
                       );
                     })}
+                    <td aria-hidden className="p-0 border-0" style={{ minWidth: 240, width: 240 }} />
                     <td className="sticky right-[160px] bg-card z-10 px-2 py-1.5 text-center border-l border-b">{stats.present}</td>
                     <td className="sticky right-[80px] bg-card z-10 px-2 py-1.5 text-center border-b">{stats.absent}</td>
                     <td className="sticky right-0 bg-card z-10 px-2 py-1.5 text-center border-l border-b font-semibold">{stats.pct}%</td>
