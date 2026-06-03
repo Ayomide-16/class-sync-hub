@@ -349,28 +349,97 @@ function StudentsSection({ data, call }: { data: ReturnType<typeof useAdminData>
   const [editing, setEditing] = useState<AeirgStudent | null>(null);
   const [editName, setEditName] = useState("");
 
+  const [manualOpen, setManualOpen] = useState(false);
+  const [manualMatric, setManualMatric] = useState("");
+  const [manualDate, setManualDate] = useState(today);
+  const [manualBusy, setManualBusy] = useState(false);
+  const isPresent = (m: string, d: string) => !!presence.get(m)?.has(d);
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <h2 className="text-2xl font-bold">Students</h2>
-        <Dialog open={adding} onOpenChange={setAdding}>
-          <DialogTrigger asChild><Button>Add Student</Button></DialogTrigger>
-          <DialogContent>
-            <DialogHeader><DialogTitle>Add student</DialogTitle></DialogHeader>
-            <div className="space-y-3">
-              <div><Label>Full Name</Label><Input value={name} onChange={(e) => setName(e.target.value)} /></div>
-              <div><Label>Matric Number</Label><Input value={matric} onChange={(e) => setMatric(e.target.value)} /></div>
-            </div>
-            <DialogFooter>
-              <Button onClick={async () => {
-                if (!name.trim() || !matric.trim()) return;
-                await call("addStudent", { name: name.trim(), matric_number: matric.trim() });
-                toast.success("Student added");
-                setName(""); setMatric(""); setAdding(false);
-              }}>Save</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <div className="flex gap-2">
+          <Dialog open={manualOpen} onOpenChange={(o) => { setManualOpen(o); if (o) { setManualMatric(""); setManualDate(today); } }}>
+            <DialogTrigger asChild><Button variant="outline">Manual Add Attendance</Button></DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>Manually mark attendance</DialogTitle></DialogHeader>
+              <div className="space-y-3">
+                <p className="text-xs text-muted-foreground">
+                  Use this to correct missed check-ins. The record is flagged as a manual override.
+                </p>
+                <div>
+                  <Label>Student</Label>
+                  <select
+                    className="w-full h-9 rounded-md border border-input bg-transparent px-3 text-sm"
+                    value={manualMatric}
+                    onChange={(e) => setManualMatric(e.target.value)}
+                  >
+                    <option value="">— Select a student —</option>
+                    {students.map((s) => (
+                      <option key={s.id} value={s.matric_number}>
+                        {s.name} ({s.matric_number})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <Label>Date</Label>
+                  <Input type="date" value={manualDate} max={today} onChange={(e) => setManualDate(e.target.value)} />
+                </div>
+                {manualMatric && manualDate && isPresent(manualMatric, manualDate) && (
+                  <p className="text-xs text-amber-600">
+                    Already marked present on {manualDate}.
+                  </p>
+                )}
+                {manualDate && cset.has(manualDate) && (
+                  <p className="text-xs text-amber-600">
+                    Note: {manualDate} is a cancelled/holiday day.
+                  </p>
+                )}
+              </div>
+              <DialogFooter>
+                <Button
+                  disabled={!manualMatric || !manualDate || manualBusy || isPresent(manualMatric, manualDate)}
+                  onClick={async () => {
+                    setManualBusy(true);
+                    try {
+                      await call("toggleAttendance", {
+                        matric_number: manualMatric,
+                        attendance_date: manualDate,
+                        currentlyPresent: false,
+                      });
+                      toast.success("Attendance recorded");
+                      setManualOpen(false);
+                    } finally {
+                      setManualBusy(false);
+                    }
+                  }}
+                >
+                  {manualBusy ? "Saving…" : "Mark Present"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <Dialog open={adding} onOpenChange={setAdding}>
+            <DialogTrigger asChild><Button>Add Student</Button></DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>Add student</DialogTitle></DialogHeader>
+              <div className="space-y-3">
+                <div><Label>Full Name</Label><Input value={name} onChange={(e) => setName(e.target.value)} /></div>
+                <div><Label>Matric Number</Label><Input value={matric} onChange={(e) => setMatric(e.target.value)} /></div>
+              </div>
+              <DialogFooter>
+                <Button onClick={async () => {
+                  if (!name.trim() || !matric.trim()) return;
+                  await call("addStudent", { name: name.trim(), matric_number: matric.trim() });
+                  toast.success("Student added");
+                  setName(""); setMatric(""); setAdding(false);
+                }}>Save</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <div className="relative max-w-sm">
