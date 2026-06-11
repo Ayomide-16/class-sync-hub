@@ -180,25 +180,27 @@ function Dashboard({ session }: { session: StudentSession }) {
 
   return (
     <Tabs defaultValue="overview" className="space-y-4">
-      <TabsList>
-        <TabsTrigger value="overview"><LayoutDashboard className="h-4 w-4 mr-1" />Overview</TabsTrigger>
-        <TabsTrigger value="settings"><SettingsIcon className="h-4 w-4 mr-1" />Settings</TabsTrigger>
-      </TabsList>
+      <div className="overflow-x-auto -mx-4 px-4">
+        <TabsList className="w-max">
+          <TabsTrigger value="overview"><LayoutDashboard className="h-4 w-4 mr-1" />Overview</TabsTrigger>
+          <TabsTrigger value="settings"><SettingsIcon className="h-4 w-4 mr-1" />Settings</TabsTrigger>
+        </TabsList>
+      </div>
 
       <TabsContent value="overview" className="space-y-4">
         <CheckInCard session={session} />
-        <div className="grid grid-cols-3 gap-3">
-          <Card><CardContent className="p-4">
-            <div className="text-xs text-muted-foreground">Days Present</div>
-            <div className="text-2xl font-bold text-emerald-600">{stats.present}</div>
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+          <Card><CardContent className="p-3 sm:p-4">
+            <div className="text-[10px] sm:text-xs text-muted-foreground">Days Present</div>
+            <div className="text-lg sm:text-2xl font-bold text-emerald-600">{stats.present}</div>
           </CardContent></Card>
-          <Card><CardContent className="p-4">
-            <div className="text-xs text-muted-foreground">Days Absent</div>
-            <div className="text-2xl font-bold text-rose-500">{stats.absent}</div>
+          <Card><CardContent className="p-3 sm:p-4">
+            <div className="text-[10px] sm:text-xs text-muted-foreground">Days Absent</div>
+            <div className="text-lg sm:text-2xl font-bold text-rose-500">{stats.absent}</div>
           </CardContent></Card>
-          <Card><CardContent className="p-4">
-            <div className="text-xs text-muted-foreground">Attendance %</div>
-            <div className="text-2xl font-bold">{stats.pct}%</div>
+          <Card><CardContent className="p-3 sm:p-4">
+            <div className="text-[10px] sm:text-xs text-muted-foreground">Attendance %</div>
+            <div className="text-lg sm:text-2xl font-bold">{stats.pct}%</div>
           </CardContent></Card>
         </div>
 
