@@ -85,14 +85,15 @@ function AeirgPublic() {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">AEIRG IT Attendance</h1>
-            <p className="text-sm text-muted-foreground">{new Date(today + "T12:00:00Z").toDateString()}</p>
+        <div className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-2xl font-bold truncate">AEIRG IT Attendance</h1>
+            <p className="text-xs sm:text-sm text-muted-foreground">{new Date(today + "T12:00:00Z").toDateString()}</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <Link to="/">
-              <Button variant="ghost" size="sm">AttendClass Home</Button>
+              <Button variant="ghost" size="sm" className="hidden sm:inline-flex">AttendClass Home</Button>
+              <Button variant="ghost" size="sm" className="sm:hidden">Home</Button>
             </Link>
             <Link to="/aeirg/login">
               <Button variant="outline" size="sm">Login</Button>
@@ -101,7 +102,7 @@ function AeirgPublic() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-6">
+      <main className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
         {loading ? (
           <p className="text-muted-foreground">Loading…</p>
         ) : !hasData ? (
@@ -113,11 +114,13 @@ function AeirgPublic() {
           </Card>
         ) : (
           <Tabs defaultValue="register" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="register"><FileSpreadsheet className="h-4 w-4 mr-1" />Student Register</TabsTrigger>
-              <TabsTrigger value="daily"><CalIcon className="h-4 w-4 mr-1" />Daily View</TabsTrigger>
-              <TabsTrigger value="student"><Users className="h-4 w-4 mr-1" />Student Detail</TabsTrigger>
-            </TabsList>
+            <div className="overflow-x-auto -mx-4 px-4">
+              <TabsList className="w-max">
+                <TabsTrigger value="register"><FileSpreadsheet className="h-4 w-4 mr-1" />Student Register</TabsTrigger>
+                <TabsTrigger value="daily"><CalIcon className="h-4 w-4 mr-1" />Daily View</TabsTrigger>
+                <TabsTrigger value="student"><Users className="h-4 w-4 mr-1" />Student Detail</TabsTrigger>
+              </TabsList>
+            </div>
             <TabsContent value="register">
               <RegisterTab
                 students={sortBySurname(students.data ?? [])}
