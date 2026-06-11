@@ -591,7 +591,8 @@ function PacketsSection({ data, call }: { data: ReturnType<typeof useAdminData>;
     <div className="space-y-4">
       <h2 className="text-2xl font-bold">Raw Packets</h2>
       <Card><CardContent className="p-0">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[720px] text-sm">
           <thead className="bg-muted">
             <tr>
               <th className="text-left px-3 py-2">Assigned Date</th>
@@ -654,6 +655,7 @@ function PacketsSection({ data, call }: { data: ReturnType<typeof useAdminData>;
             )}
           </tbody>
         </table>
+        </div>
       </CardContent></Card>
 
       <AlertDialog open={!!reassign} onOpenChange={(o) => !o && setReassign(null)}>
