@@ -109,6 +109,7 @@ type Section = "dashboard" | "students" | "register" | "packets" | "cancelled" |
 
 function AdminShell({ pw, onLogout }: { pw: string; onLogout: () => void }) {
   const [section, setSection] = useState<Section>("dashboard");
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const flagCount = useQuery({
     queryKey: ["aeirg", "flag-count"],
     refetchInterval: 30_000,
@@ -130,35 +131,60 @@ function AdminShell({ pw, onLogout }: { pw: string; onLogout: () => void }) {
     { id: "cancelled", label: "Cancelled Days", icon: CalendarX },
     { id: "settings", label: "Settings", icon: SettingsIcon },
   ];
+
+  const navContent = (
+    <>
+      <div className="p-4 border-b">
+        <div className="font-bold">AEIRG Admin</div>
+        <div className="text-xs text-muted-foreground truncate">{ADMIN_EMAIL}</div>
+      </div>
+      <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
+        {items.map((it) => (
+          <button
+            key={it.id}
+            onClick={() => { setSection(it.id); setMobileNavOpen(false); }}
+            className={`w-full flex items-center gap-2 px-3 py-2 rounded text-sm text-left ${section === it.id ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+          >
+            <it.icon className="h-4 w-4 shrink-0" /><span className="flex-1 truncate">{it.label}</span>
+            {!!it.badge && it.badge > 0 && (
+              <Badge variant="destructive" className="h-5 px-1.5 text-[10px]">{it.badge}</Badge>
+            )}
+          </button>
+        ))}
+      </nav>
+      <div className="p-2 border-t space-y-1">
+        <Link to="/aeirg" className="block px-3 py-2 text-xs text-muted-foreground hover:underline">View public page →</Link>
+        <Button variant="ghost" size="sm" className="w-full justify-start" onClick={onLogout}>
+          <LogOut className="h-4 w-4 mr-2" />Sign out
+        </Button>
+      </div>
+    </>
+  );
+
+  const currentLabel = items.find((i) => i.id === section)?.label ?? "";
+
   return (
-    <div className="min-h-screen flex bg-muted/30">
-      <aside className="w-60 border-r bg-card flex flex-col">
-        <div className="p-4 border-b">
-          <div className="font-bold">AEIRG Admin</div>
-          <div className="text-xs text-muted-foreground">{ADMIN_EMAIL}</div>
-        </div>
-        <nav className="flex-1 p-2 space-y-1">
-          {items.map((it) => (
-            <button
-              key={it.id}
-              onClick={() => setSection(it.id)}
-              className={`w-full flex items-center gap-2 px-3 py-2 rounded text-sm text-left ${section === it.id ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
-            >
-              <it.icon className="h-4 w-4" /><span className="flex-1">{it.label}</span>
-              {!!it.badge && it.badge > 0 && (
-                <Badge variant="destructive" className="h-5 px-1.5 text-[10px]">{it.badge}</Badge>
-              )}
-            </button>
-          ))}
-        </nav>
-        <div className="p-2 border-t space-y-1">
-          <Link to="/aeirg" className="block px-3 py-2 text-xs text-muted-foreground hover:underline">View public page →</Link>
-          <Button variant="ghost" size="sm" className="w-full justify-start" onClick={onLogout}>
-            <LogOut className="h-4 w-4 mr-2" />Sign out
-          </Button>
-        </div>
+    <div className="min-h-screen md:flex bg-muted/30">
+      <aside className="hidden md:flex w-60 border-r bg-card flex-col shrink-0">
+        {navContent}
       </aside>
-      <main className="flex-1 p-6 overflow-auto">
+      <header className="md:hidden sticky top-0 z-30 flex items-center gap-2 border-b bg-card px-3 py-2">
+        <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="shrink-0">
+              <Menu className="h-5 w-5" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="p-0 w-64 flex flex-col">
+            {navContent}
+          </SheetContent>
+        </Sheet>
+        <div className="min-w-0 flex-1">
+          <div className="text-xs text-muted-foreground">AEIRG Admin</div>
+          <div className="font-semibold text-sm truncate">{currentLabel}</div>
+        </div>
+      </header>
+      <main className="flex-1 min-w-0 p-4 md:p-6 overflow-auto">
         <AdminSection section={section} pw={pw} />
       </main>
     </div>
