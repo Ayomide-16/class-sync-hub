@@ -475,7 +475,8 @@ function StudentsSection({ data, call }: { data: ReturnType<typeof useAdminData>
       </div>
 
       <Card><CardContent className="p-0">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[640px] text-sm">
           <thead className="bg-muted">
             <tr>
               <th className="text-left px-3 py-2">Name</th>
@@ -529,6 +530,7 @@ function StudentsSection({ data, call }: { data: ReturnType<typeof useAdminData>
             )}
           </tbody>
         </table>
+        </div>
       </CardContent></Card>
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
