@@ -788,7 +788,8 @@ function CancelledSection({ data, call }: { data: ReturnType<typeof useAdminData
 
 
       <Card><CardContent className="p-0">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[480px] text-sm">
           <thead className="bg-muted">
             <tr><th className="text-left px-3 py-2">Date</th><th className="text-left px-3 py-2">Reason</th><th className="text-right px-3 py-2"></th></tr>
           </thead>
@@ -808,6 +809,7 @@ function CancelledSection({ data, call }: { data: ReturnType<typeof useAdminData
             {cancelled.length === 0 && <tr><td colSpan={3} className="text-center py-6 text-muted-foreground">No cancelled days.</td></tr>}
           </tbody>
         </table>
+        </div>
       </CardContent></Card>
     </div>
   );
@@ -861,7 +863,8 @@ function FlagsSection({ data, call }: { data: ReturnType<typeof useAdminData>; c
         Same browser used by different students. Review each one and dismiss or revoke the attendance.
       </p>
       <Card><CardContent className="p-0">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[860px] text-sm">
           <thead className="bg-muted">
             <tr>
               <th className="text-left px-3 py-2">Date / Time</th>
@@ -916,6 +919,7 @@ function FlagsSection({ data, call }: { data: ReturnType<typeof useAdminData>; c
             )}
           </tbody>
         </table>
+        </div>
       </CardContent></Card>
     </div>
   );
