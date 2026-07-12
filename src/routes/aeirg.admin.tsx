@@ -110,16 +110,13 @@ type Section = "dashboard" | "students" | "register" | "packets" | "cancelled" |
 function AdminShell({ pw, onLogout }: { pw: string; onLogout: () => void }) {
   const [section, setSection] = useState<Section>("dashboard");
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const callFlagCount = useServerFn(aeirgAdmin);
   const flagCount = useQuery({
     queryKey: ["aeirg", "flag-count"],
     refetchInterval: 30_000,
     queryFn: async () => {
-      const { count, error } = await supabase
-        .from("checkin_flags" as any)
-        .select("id", { count: "exact", head: true })
-        .eq("dismissed", false);
-      if (error) throw error;
-      return count ?? 0;
+      const r = await callFlagCount({ data: { password: pw, op: "countOpenFlags", args: {} } });
+      return (r as number) ?? 0;
     },
   });
   const items: { id: Section; label: string; icon: any; badge?: number }[] = [
