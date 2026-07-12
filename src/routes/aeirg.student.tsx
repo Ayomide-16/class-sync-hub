@@ -107,7 +107,8 @@ function Dashboard({ session }: { session: StudentSession }) {
     queryKey: ["aeirg", "me", session.matric_number],
     queryFn: async () => {
       const { data, error } = await supabase.from("aeirg_students" as any)
-        .select("*").eq("matric_number", session.matric_number).single();
+        .select("id, name, matric_number, added_at, must_change_password")
+        .eq("matric_number", session.matric_number).single();
       if (error) throw error;
       return data as unknown as AeirgStudent;
     },
@@ -115,10 +116,10 @@ function Dashboard({ session }: { session: StudentSession }) {
   const attendanceQ = useQuery({
     queryKey: ["aeirg", "me-attendance", session.matric_number],
     queryFn: async () => {
-      const { data, error } = await supabase.from("aeirg_attendance" as any)
-        .select("*").eq("matric_number", session.matric_number);
+      const { data, error } = await supabase.rpc("aeirg_public_attendance" as any);
       if (error) throw error;
-      return (data ?? []) as unknown as AeirgAttendance[];
+      return ((data ?? []) as unknown as AeirgAttendance[])
+        .filter((a) => a.matric_number === session.matric_number);
     },
   });
   const cancelledQ = useQuery({
@@ -132,10 +133,12 @@ function Dashboard({ session }: { session: StudentSession }) {
   const allAttendanceQ = useQuery({
     queryKey: ["aeirg", "all-attendance-min"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("aeirg_attendance" as any)
-        .select("attendance_date").order("attendance_date", { ascending: true }).limit(1);
+      const { data, error } = await supabase.rpc("aeirg_public_attendance" as any);
       if (error) throw error;
-      return (data ?? []) as unknown as { attendance_date: string }[];
+      const rows = (data ?? []) as unknown as { attendance_date: string }[];
+      if (rows.length === 0) return [] as { attendance_date: string }[];
+      const min = rows.reduce((m, r) => (r.attendance_date < m ? r.attendance_date : m), rows[0].attendance_date);
+      return [{ attendance_date: min }];
     },
   });
 
