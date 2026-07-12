@@ -22,6 +22,28 @@ export const aeirgAdmin = createServerFn({ method: "POST" })
     const sb = supabaseAdmin as any;
 
     switch (data.op) {
+      case "listPackets": {
+        const r = await sb.from("aeirg_raw_packets").select("*").order("received_at", { ascending: false });
+        if (r.error) throw new Error(r.error.message);
+        return r.data ?? [];
+      }
+      case "getConfig": {
+        const r = await sb.from("aeirg_admin_config").select("*").eq("id", 1).single();
+        if (r.error) throw new Error(r.error.message);
+        return r.data;
+      }
+      case "listFlags": {
+        const r = await sb.from("checkin_flags").select("*").eq("dismissed", false)
+          .order("flagged_at", { ascending: false });
+        if (r.error) throw new Error(r.error.message);
+        return r.data ?? [];
+      }
+      case "countOpenFlags": {
+        const r = await sb.from("checkin_flags").select("id", { count: "exact", head: true })
+          .eq("dismissed", false);
+        if (r.error) throw new Error(r.error.message);
+        return r.count ?? 0;
+      }
       case "addStudent": {
         const r = await sb.from("aeirg_students").insert({
           name: args.name, matric_number: args.matric_number,
