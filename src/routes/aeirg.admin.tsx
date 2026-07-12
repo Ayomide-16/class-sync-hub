@@ -240,7 +240,7 @@ function useAdminData(pw: string) {
 }
 
 function AdminSection({ section, pw }: { section: Section; pw: string }) {
-  const data = useAdminData();
+  const data = useAdminData(pw);
   const qc = useQueryClient();
   const callRaw = useServerFn(aeirgAdmin);
   const call = async (op: string, args: Record<string, any> = {}) => {
