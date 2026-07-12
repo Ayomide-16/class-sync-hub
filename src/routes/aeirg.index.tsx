@@ -45,7 +45,8 @@ function useAeirgData() {
   const students = useQuery({
     queryKey: ["aeirg", "students"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("aeirg_students" as any).select("*");
+      const { data, error } = await supabase.from("aeirg_students" as any)
+        .select("id, name, matric_number, added_at, must_change_password");
       if (error) throw error;
       return (data ?? []) as unknown as AeirgStudent[];
     },
@@ -53,7 +54,7 @@ function useAeirgData() {
   const attendance = useQuery({
     queryKey: ["aeirg", "attendance"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("aeirg_attendance" as any).select("*");
+      const { data, error } = await supabase.rpc("aeirg_public_attendance" as any);
       if (error) throw error;
       return (data ?? []) as unknown as AeirgAttendance[];
     },
