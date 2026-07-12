@@ -434,6 +434,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      aeirg_get_it_period_end: { Args: never; Returns: string }
+      aeirg_public_attendance: {
+        Args: never
+        Returns: {
+          attendance_date: string
+          id: string
+          manually_added: boolean
+          matric_number: string
+          source_packet_id: string
+        }[]
+      }
       aeirg_record_ble_attendance: {
         Args: {
           _ble_device?: string

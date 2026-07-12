@@ -110,16 +110,13 @@ type Section = "dashboard" | "students" | "register" | "packets" | "cancelled" |
 function AdminShell({ pw, onLogout }: { pw: string; onLogout: () => void }) {
   const [section, setSection] = useState<Section>("dashboard");
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const callFlagCount = useServerFn(aeirgAdmin);
   const flagCount = useQuery({
     queryKey: ["aeirg", "flag-count"],
     refetchInterval: 30_000,
     queryFn: async () => {
-      const { count, error } = await supabase
-        .from("checkin_flags" as any)
-        .select("id", { count: "exact", head: true })
-        .eq("dismissed", false);
-      if (error) throw error;
-      return count ?? 0;
+      const r = await callFlagCount({ data: { password: pw, op: "countOpenFlags", args: {} } });
+      return (r as number) ?? 0;
     },
   });
   const items: { id: Section; label: string; icon: any; badge?: number }[] = [
@@ -191,11 +188,13 @@ function AdminShell({ pw, onLogout }: { pw: string; onLogout: () => void }) {
   );
 }
 
-function useAdminData() {
+function useAdminData(pw: string) {
+  const call = useServerFn(aeirgAdmin);
   const students = useQuery({
     queryKey: ["aeirg", "students"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("aeirg_students" as any).select("*");
+      const { data, error } = await supabase.from("aeirg_students" as any)
+        .select("id, name, matric_number, added_at, must_change_password");
       if (error) throw error;
       return (data ?? []) as unknown as AeirgStudent[];
     },
@@ -203,7 +202,7 @@ function useAdminData() {
   const attendance = useQuery({
     queryKey: ["aeirg", "attendance"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("aeirg_attendance" as any).select("*");
+      const { data, error } = await supabase.rpc("aeirg_public_attendance" as any);
       if (error) throw error;
       return (data ?? []) as unknown as AeirgAttendance[];
     },
@@ -219,33 +218,29 @@ function useAdminData() {
   const packets = useQuery({
     queryKey: ["aeirg", "packets"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("aeirg_raw_packets" as any).select("*").order("received_at", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as any[];
+      const r = await call({ data: { password: pw, op: "listPackets", args: {} } });
+      return (r as any[]) ?? [];
     },
   });
   const config = useQuery({
     queryKey: ["aeirg", "config"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("aeirg_admin_config" as any).select("*").eq("id", 1).single();
-      if (error) throw error;
-      return data as any;
+      const r = await call({ data: { password: pw, op: "getConfig", args: {} } });
+      return r as any;
     },
   });
   const flags = useQuery({
     queryKey: ["aeirg", "flags"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("checkin_flags" as any)
-        .select("*").eq("dismissed", false).order("flagged_at", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as any[];
+      const r = await call({ data: { password: pw, op: "listFlags", args: {} } });
+      return (r as any[]) ?? [];
     },
   });
   return { students, attendance, cancelled, packets, config, flags };
 }
 
 function AdminSection({ section, pw }: { section: Section; pw: string }) {
-  const data = useAdminData();
+  const data = useAdminData(pw);
   const qc = useQueryClient();
   const callRaw = useServerFn(aeirgAdmin);
   const call = async (op: string, args: Record<string, any> = {}) => {
